@@ -1,0 +1,2 @@
+# ConsumptionMemo
+Weekly Memo
