@@ -5,64 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Industry Outlook Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        body {
-            background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
-        }
+        body { background: linear-gradient(to bottom right, #f8fafc, #f1f5f9); }
     </style>
 </head>
 <body>
     <div class="min-h-screen p-6">
         <div class="max-w-7xl mx-auto">
-            <!-- Header -->
             <div class="mb-8">
                 <h1 class="text-4xl font-bold text-slate-800 mb-2">Industry Outlook Dashboard</h1>
                 <p class="text-slate-600">Week ending October 26, 2025 • 24 Industry Sectors</p>
             </div>
 
-            <!-- Summary Cards -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 <div style="background-color: white; border-left: 4px solid #3b82f6;" class="rounded-lg shadow-sm p-4">
                     <div class="text-xs text-slate-600 mb-1">Avg Per Capita Change</div>
                     <div class="text-2xl font-bold text-slate-800" id="avgChange">0.40%</div>
                     <div class="text-xs text-slate-500 mt-1">↑ from -0.9% last week</div>
                 </div>
-                
                 <div style="background-color: white; border-left: 4px solid #10b981;" class="rounded-lg shadow-sm p-4">
                     <div class="text-xs text-slate-600 mb-1">Growing Sectors</div>
                     <div class="text-2xl font-bold" style="color: #10b981;" id="growingCount">9</div>
                     <div class="text-xs text-slate-500 mt-1">of 24 sectors</div>
                 </div>
-                
                 <div style="background-color: white; border-left: 4px solid #ef4444;" class="rounded-lg shadow-sm p-4">
                     <div class="text-xs text-slate-600 mb-1">Declining Sectors</div>
                     <div class="text-2xl font-bold" style="color: #ef4444;" id="decliningCount">15</div>
                     <div class="text-xs text-slate-500 mt-1">of 24 sectors</div>
                 </div>
-                
                 <div style="background-color: white; border-left: 4px solid #a855f7;" class="rounded-lg shadow-sm p-4">
                     <div class="text-xs text-slate-600 mb-1">Avg ICS</div>
-                    <div class="text-2xl font-bold text-slate-800" id="avgICS">112.5</div>
+                    <div class="text-2xl font-bold text-slate-800" id="avgICS">111.5</div>
                     <div class="text-xs text-slate-500 mt-1">Consumer sentiment index</div>
                 </div>
             </div>
 
-            <!-- Controls -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div class="flex flex-wrap gap-4 items-center">
                     <div>
                         <label class="text-sm font-medium text-slate-700 mr-2">Display Metric:</label>
-                        <select id="metricSelect" class="border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="metricSelect" class="border border-slate-300 rounded-lg px-4 py-2">
                             <option value="perCapitaChangePercent">% Change Per Capita</option>
                             <option value="icsChange">ICS Change (pts)</option>
                             <option value="ics">ICS Score</option>
                         </select>
                     </div>
-                    
                     <div>
                         <label class="text-sm font-medium text-slate-700 mr-2">Sort By:</label>
-                        <select id="sortSelect" class="border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="sortSelect" class="border border-slate-300 rounded-lg px-4 py-2">
                             <option value="perCapitaChangePercent">Per Capita Change</option>
                             <option value="icsChange">ICS Change</option>
                             <option value="ics">ICS Score</option>
@@ -71,298 +61,301 @@
                 </div>
             </div>
 
-            <!-- Main Chart -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h2 class="text-xl font-semibold text-slate-800 mb-4" id="chartTitle">% Change Per Capita by Industry Sector</h2>
-                <div style="height: 600px;">
-                    <canvas id="mainChart"></canvas>
-                </div>
+                <div style="height: 600px;"><canvas id="mainChart"></canvas></div>
             </div>
 
-            <!-- Scatter Plot -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h2 class="text-xl font-semibold text-slate-800 mb-4">Weekly Sentiment vs. Weekly Consumption Performance</h2>
-                <p class="text-sm text-slate-600 mb-4">ICS (Consumer Sentiment) vs. Per Capita Change • Hover for details</p>
-                <div style="height: 500px;">
-                    <canvas id="scatterChart"></canvas>
-                </div>
+                <p class="text-sm text-slate-600 mb-4">ICS (Consumer Sentiment) vs. Per Capita Change</p>
+                <div style="height: 500px;"><canvas id="scatterChart"></canvas></div>
             </div>
 
-            <!-- Time Series Chart -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h2 class="text-xl font-semibold text-slate-800 mb-4">Per Capita Consumption Trend Over Time</h2>
                 <div class="mb-4">
                     <label class="text-sm font-medium text-slate-700 mr-2">Select Industry:</label>
-                    <select id="industrySelect" class="border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="Crypto Apps">Crypto Apps</option>
-                        <option value="Streaming Apps">Streaming Apps</option>
-                        <option value="AI Platforms">AI Platforms</option>
-                        <option value="Gaming consoles">Gaming consoles</option>
-                        <option value="Casual Dining" selected>Casual Dining</option>
-                        <option value="Airlines">Airlines</option>
+                    <select id="industrySelect" class="border border-slate-300 rounded-lg px-4 py-2">
+                        <option value="Casual Dining">Casual Dining</option>
                         <option value="QSR">QSR</option>
-                        <option value="Spirits">Spirits</option>
-                        <option value="Payments">Payments</option>
-                        <option value="Real Estate">Real Estate</option>
-                        <option value="Energy drinks">Energy drinks</option>
-                        <option value="Pharmacy">Pharmacy</option>
+                        <option value="Grocery Retailers">Grocery Retailers</option>
+                        <option value="Crypto Apps">Crypto Apps</option>
+                        <option value="Airlines">Airlines</option>
+                        <option value="AI Platforms">AI Platforms</option>
+                        <option value="Automotive">Automotive</option>
+                        <option value="Baby products">Baby products</option>
+                        <option value="Bottled water">Bottled water</option>
                         <option value="Breakfast restaurants">Breakfast restaurants</option>
                         <option value="Credit card networks">Credit card networks</option>
-                        <option value="Baby products">Baby products</option>
-                        <option value="Social media">Social media</option>
-                        <option value="Automotive">Automotive</option>
-                        <option value="Fitness">Fitness</option>
-                        <option value="Bottled water">Bottled water</option>
-                        <option value="Grocery Retailers">Grocery Retailers</option>
-                        <option value="Food/Bev Delivery">Food/Bev Delivery</option>
-                        <option value="Luxury hotels">Luxury hotels</option>
                         <option value="Department Stores">Department Stores</option>
+                        <option value="Energy drinks">Energy drinks</option>
+                        <option value="Fitness">Fitness</option>
+                        <option value="Food/Bev Delivery">Food/Bev Delivery</option>
+                        <option value="Gaming consoles">Gaming consoles</option>
+                        <option value="Luxury hotels">Luxury hotels</option>
+                        <option value="Payments">Payments</option>
+                        <option value="Pharmacy">Pharmacy</option>
+                        <option value="Real Estate">Real Estate</option>
                         <option value="Ridesharing">Ridesharing</option>
+                        <option value="Social media">Social media</option>
+                        <option value="Spirits">Spirits</option>
+                        <option value="Streaming Apps">Streaming Apps</option>
                     </select>
                 </div>
-                <div style="height: 400px;">
-                    <canvas id="timeseriesChart"></canvas>
-                </div>
+                <div style="height: 400px;"><canvas id="timeseriesChart"></canvas></div>
             </div>
 
-            <!-- Key Insights -->
             <div style="background: linear-gradient(to right, #eff6ff, #eef2ff);" class="rounded-lg shadow-md p-6 border border-blue-200">
                 <h2 class="text-xl font-semibold text-slate-800 mb-4">Key Insights</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div style="background-color: white;" class="rounded-lg p-3 hover:shadow-md transition-shadow">
+                    <div style="background-color: white;" class="rounded-lg p-3">
                         <div class="text-xs font-medium" style="color: #15803d;">Top Performer</div>
                         <div class="text-base font-bold text-slate-800">Crypto Apps</div>
                         <div class="text-xs text-slate-600 mb-2">+14.6% per capita growth</div>
-                        <a href="https://blockchainreporter.net/crypto-market-october-2025-bitcoin-ethereum-lead-rally-as-major-coins-report-gains" target="_blank" rel="noopener noreferrer" class="text-xs hover:text-blue-800 underline flex items-center gap-1" style="color: #2563eb;">
-                            Recent news →
-                        </a>
+                        <a href="https://blockchainreporter.net/crypto-market-october-2025-bitcoin-ethereum-lead-rally-as-major-coins-report-gains" target="_blank" class="text-xs underline" style="color: #2563eb;">Recent news →</a>
                     </div>
-                    
-                    <div style="background-color: white;" class="rounded-lg p-3 hover:shadow-md transition-shadow">
+                    <div style="background-color: white;" class="rounded-lg p-3">
                         <div class="text-xs font-medium" style="color: #b91c1c;">Biggest Decliner</div>
                         <div class="text-base font-bold text-slate-800">Ridesharing</div>
                         <div class="text-xs text-slate-600 mb-2">-2.9% per capita change</div>
-                        <a href="https://www.mckinsey.com/industries/consumer-packaged-goods/our-insights/how-todays-consumers-are-spending-their-time-and-money" target="_blank" rel="noopener noreferrer" class="text-xs hover:text-blue-800 underline flex items-center gap-1" style="color: #2563eb;">
-                            Consumer trends →
-                        </a>
+                        <a href="https://www.mckinsey.com/industries/consumer-packaged-goods/our-insights/how-todays-consumers-are-spending-their-time-and-money" target="_blank" class="text-xs underline" style="color: #2563eb;">Consumer trends →</a>
                     </div>
-                    
-                    <div style="background-color: white;" class="rounded-lg p-3 hover:shadow-md transition-shadow">
+                    <div style="background-color: white;" class="rounded-lg p-3">
                         <div class="text-xs font-medium" style="color: #1d4ed8;">Notable Divergence</div>
                         <div class="text-base font-bold text-slate-800">Casual Dining</div>
-                        <div class="text-xs text-slate-600 mb-2">Growing +1.1% despite sentiment drop of -1.9 pts</div>
-                        <a href="https://blackboxintelligence.com/blog/restaurant-industry-in-review-trends-from-september-2025/" target="_blank" rel="noopener noreferrer" class="text-xs hover:text-blue-800 underline flex items-center gap-1" style="color: #2563eb;">
-                            Restaurant trends →
-                        </a>
+                        <div class="text-xs text-slate-600 mb-2">+1.1% despite sentiment drop</div>
+                        <a href="https://blackboxintelligence.com/blog/restaurant-industry-in-review-trends-from-september-2025/" target="_blank" class="text-xs underline" style="color: #2563eb;">Restaurant trends →</a>
                     </div>
-                    
-                    <div style="background-color: white;" class="rounded-lg p-3 hover:shadow-md transition-shadow">
+                    <div style="background-color: white;" class="rounded-lg p-3">
                         <div class="text-xs font-medium" style="color: #7c3aed;">Watch List</div>
                         <div class="text-base font-bold text-slate-800">Grocery & Delivery</div>
-                        <div class="text-xs text-slate-600 mb-2">Both declining -1.8% as dining out gains share</div>
-                        <a href="https://www.placer.ai/anchor/articles/q2-2025-restaurant-recap-a-cautious-consumer-shapes-dining-trends" target="_blank" rel="noopener noreferrer" class="text-xs hover:text-blue-800 underline flex items-center gap-1" style="color: #2563eb;">
-                            Industry analysis →
-                        </a>
+                        <div class="text-xs text-slate-600 mb-2">Both declining -1.8%</div>
+                        <a href="https://www.placer.ai/anchor/articles/q2-2025-restaurant-recap-a-cautious-consumer-shapes-dining-trends" target="_blank" class="text-xs underline" style="color: #2563eb;">Industry analysis →</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <script>
-        // Time series data - ACTUAL DATA from Column D (metric_rolled) in Timeseries sheet
-        const timeseriesRawData = {"Airlines":[{"date":"2025-05-11","value":0.048868198},{"date":"2025-05-18","value":0.05232242},{"date":"2025-05-25","value":0.055745920},{"date":"2025-06-01","value":0.055283854},{"date":"2025-06-08","value":0.055326113},{"date":"2025-06-15","value":0.055892956},{"date":"2025-06-22","value":0.055313293},{"date":"2025-06-29","value":0.052909861},{"date":"2025-07-06","value":0.051552374},{"date":"2025-07-13","value":0.052593917},{"date":"2025-07-20","value":0.053107403},{"date":"2025-07-27","value":0.052201727},{"date":"2025-08-03","value":0.050307376},{"date":"2025-08-10","value":0.049512673},{"date":"2025-08-17","value":0.049243345},{"date":"2025-08-24","value":0.049539206},{"date":"2025-08-31","value":0.050368544},{"date":"2025-09-07","value":0.050935985},{"date":"2025-09-14","value":0.050914161},{"date":"2025-09-21","value":0.050781582},{"date":"2025-09-28","value":0.050094311},{"date":"2025-10-05","value":0.049318606},{"date":"2025-10-12","value":0.048826249},{"date":"2025-10-19","value":0.04953031},{"date":"2025-10-26","value":0.05006633}],"AI Platforms":[{"date":"2025-05-11","value":0.478191032},{"date":"2025-05-18","value":0.534837527},{"date":"2025-05-25","value":0.575874079},{"date":"2025-06-01","value":0.578920109},{"date":"2025-06-08","value":0.597891828},{"date":"2025-06-15","value":0.610708301},{"date":"2025-06-22","value":0.619284061},{"date":"2025-06-29","value":0.604312944},{"date":"2025-07-06","value":0.607584084},{"date":"2025-07-13","value":0.604645303},{"date":"2025-07-20","value":0.605984826},{"date":"2025-07-27","value":0.605867101},{"date":"2025-08-03","value":0.624732984},{"date":"2025-08-10","value":0.619470617},{"date":"2025-08-17","value":0.595765035},{"date":"2025-08-24","value":0.612945973},{"date":"2025-08-31","value":0.609394529},{"date":"2025-09-07","value":0.619669476},{"date":"2025-09-14","value":0.616935346},{"date":"2025-09-21","value":0.623291641},{"date":"2025-09-28","value":0.620276041},{"date":"2025-10-05","value":0.620084853},{"date":"2025-10-12","value":0.619893664},{"date":"2025-10-19","value":0.621041667},{"date":"2025-10-26","value":0.627482851}],"Automotive":[{"date":"2025-05-11","value":21.229813},{"date":"2025-05-18","value":21.245045},{"date":"2025-05-25","value":21.270268},{"date":"2025-06-01","value":21.303871},{"date":"2025-06-08","value":21.343238},{"date":"2025-06-15","value":21.382609},{"date":"2025-06-22","value":21.418373},{"date":"2025-06-29","value":21.446919},{"date":"2025-07-06","value":21.465637},{"date":"2025-07-13","value":21.476543},{"date":"2025-07-20","value":21.481649},{"date":"2025-07-27","value":21.477353},{"date":"2025-08-03","value":21.457049},{"date":"2025-08-10","value":21.420697},{"date":"2025-08-17","value":21.371913},{"date":"2025-08-24","value":21.312311},{"date":"2025-08-31","value":21.247506},{"date":"2025-09-07","value":21.185112},{"date":"2025-09-14","value":21.126733},{"date":"2025-09-21","value":21.069963},{"date":"2025-09-28","value":21.011395},{"date":"2025-10-05","value":20.947621},{"date":"2025-10-12","value":20.87719},{"date":"2025-10-19","value":20.806062},{"date":"2025-10-26","value":20.789359}],"Baby products":[{"date":"2025-05-11","value":0.908756},{"date":"2025-05-18","value":0.905564},{"date":"2025-05-25","value":0.906029},{"date":"2025-06-01","value":0.908756},{"date":"2025-06-08","value":0.912017},{"date":"2025-06-15","value":0.915279},{"date":"2025-06-22","value":0.918541},{"date":"2025-06-29","value":0.921337},{"date":"2025-07-06","value":0.923666},{"date":"2025-07-13","value":0.925063},{"date":"2025-07-20","value":0.925528},{"date":"2025-07-27","value":0.925295},{"date":"2025-08-03","value":0.92413},{"date":"2025-08-10","value":0.922267},{"date":"2025-08-17","value":0.91937},{"date":"2025-08-24","value":0.915744},{"date":"2025-08-31","value":0.911652},{"date":"2025-09-07","value":0.907561},{"date":"2025-09-14","value":0.903469},{"date":"2025-09-21","value":0.899145},{"date":"2025-09-28","value":0.894355},{"date":"2025-10-05","value":0.889099},{"date":"2025-10-12","value":0.883376},{"date":"2025-10-19","value":0.877654},{"date":"2025-10-26","value":0.873097}],"Bottled water":[{"date":"2025-05-11","value":2.927989},{"date":"2025-05-18","value":2.923426},{"date":"2025-05-25","value":2.922895},{"date":"2025-06-01","value":2.925653},{"date":"2025-06-08","value":2.929881},{"date":"2025-06-15","value":2.934111},{"date":"2025-06-22","value":2.938076},{"date":"2025-06-29","value":2.941776},{"date":"2025-07-06","value":2.944949},{"date":"2025-07-13","value":2.947594},{"date":"2025-07-20","value":2.949184},{"date":"2025-07-27","value":2.949185},{"date":"2025-08-03","value":2.946557},{"date":"2025-08-10","value":2.940771},{"date":"2025-08-17","value":2.932093},{"date":"2025-08-24","value":2.921322},{"date":"2025-08-31","value":2.909519},{"date":"2025-09-07","value":2.897747},{"date":"2025-09-14","value":2.886706},{"date":"2025-09-21","value":2.876131},{"date":"2025-09-28","value":2.865556},{"date":"2025-10-05","value":2.854452},{"date":"2025-10-12","value":2.842552},{"date":"2025-10-19","value":2.831183},{"date":"2025-10-26","value":2.825927}],"Breakfast restaurants":[{"date":"2025-05-11","value":0.059886},{"date":"2025-05-18","value":0.061148},{"date":"2025-05-25","value":0.062413},{"date":"2025-06-01","value":0.063412},{"date":"2025-06-08","value":0.064147},{"date":"2025-06-15","value":0.064617},{"date":"2025-06-22","value":0.064822},{"date":"2025-06-29","value":0.064763},{"date":"2025-07-06","value":0.064439},{"date":"2025-07-13","value":0.063852},{"date":"2025-07-20","value":0.063116},{"date":"2025-07-27","value":0.062231},{"date":"2025-08-03","value":0.061199},{"date":"2025-08-10","value":0.06019},{"date":"2025-08-17","value":0.059327},{"date":"2025-08-24","value":0.058699},{"date":"2025-08-31","value":0.058218},{"date":"2025-09-07","value":0.057795},{"date":"2025-09-14","value":0.057431},{"date":"2025-09-21","value":0.057097},{"date":"2025-09-28","value":0.056675},{"date":"2025-10-05","value":0.056047},{"date":"2025-10-12","value":0.055214},{"date":"2025-10-19","value":0.054411},{"date":"2025-10-26","value":0.05575}],"Casual Dining":[{"date":"2025-05-11","value":0.217324355},{"date":"2025-05-18","value":0.240200029},{"date":"2025-05-25","value":0.253273339},{"date":"2025-06-01","value":0.260802788},{"date":"2025-06-08","value":0.260995577},{"date":"2025-06-15","value":0.261171805},{"date":"2025-06-22","value":0.256434129},{"date":"2025-06-29","value":0.251953313},{"date":"2025-07-06","value":0.245837185},{"date":"2025-07-13","value":0.245102423},{"date":"2025-07-20","value":0.250534176},{"date":"2025-07-27","value":0.250174753},{"date":"2025-08-03","value":0.248728132},{"date":"2025-08-10","value":0.248372056},{"date":"2025-08-17","value":0.252715091},{"date":"2025-08-24","value":0.253019933},{"date":"2025-08-31","value":0.248979384},{"date":"2025-09-07","value":0.248300058},{"date":"2025-09-14","value":0.245546244},{"date":"2025-09-21","value":0.24676253},{"date":"2025-09-28","value":0.243297974},{"date":"2025-10-05","value":0.240109355},{"date":"2025-10-12","value":0.236920997},{"date":"2025-10-19","value":0.233052988},{"date":"2025-10-26","value":0.235676989}],"Credit card networks":[{"date":"2025-05-11","value":4.031841},{"date":"2025-05-18","value":4.025089},{"date":"2025-05-25","value":4.022663},{"date":"2025-06-01","value":4.023349},{"date":"2025-06-08","value":4.025934},{"date":"2025-06-15","value":4.029204},{"date":"2025-06-22","value":4.032475},{"date":"2025-06-29","value":4.035533},{"date":"2025-07-06","value":4.038165},{"date":"2025-07-13","value":4.04037},{"date":"2025-07-20","value":4.041936},{"date":"2025-07-27","value":4.042651},{"date":"2025-08-03","value":4.042084},{"date":"2025-08-10","value":4.039807},{"date":"2025-08-17","value":4.036248},{"date":"2025-08-24","value":4.031},{"date":"2025-08-31","value":4.024053},{"date":"2025-09-07","value":4.01546},{"date":"2025-09-14","value":4.006055},{"date":"2025-09-21","value":3.996925},{"date":"2025-09-28","value":3.988496},{"date":"2025-10-05","value":3.980467},{"date":"2025-10-12","value":3.972438},{"date":"2025-10-19","value":3.964409},{"date":"2025-10-26","value":3.970378}],"Crypto Apps":[{"date":"2025-05-11","value":0.026552},{"date":"2025-05-18","value":0.026906},{"date":"2025-05-25","value":0.027238},{"date":"2025-06-01","value":0.027466},{"date":"2025-06-08","value":0.027581},{"date":"2025-06-15","value":0.027681},{"date":"2025-06-22","value":0.027799},{"date":"2025-06-29","value":0.02798},{"date":"2025-07-06","value":0.028199},{"date":"2025-07-13","value":0.028419},{"date":"2025-07-20","value":0.028638},{"date":"2025-07-27","value":0.028857},{"date":"2025-08-03","value":0.029077},{"date":"2025-08-10","value":0.029371},{"date":"2025-08-17","value":0.029731},{"date":"2025-08-24","value":0.030146},{"date":"2025-08-31","value":0.030644},{"date":"2025-09-07","value":0.031205},{"date":"2025-09-14","value":0.031767},{"date":"2025-09-21","value":0.032329},{"date":"2025-09-28","value":0.032827},{"date":"2025-10-05","value":0.033221},{"date":"2025-10-12","value":0.033551},{"date":"2025-10-19","value":0.033822},{"date":"2025-10-26","value":0.034503}],"Department Stores":[{"date":"2025-05-11","value":0.071223},{"date":"2025-05-18","value":0.071414},{"date":"2025-05-25","value":0.071604},{"date":"2025-06-01","value":0.071795},{"date":"2025-06-08","value":0.071985},{"date":"2025-06-15","value":0.072176},{"date":"2025-06-22","value":0.072366},{"date":"2025-06-29","value":0.072557},{"date":"2025-07-06","value":0.072747},{"date":"2025-07-13","value":0.072938},{"date":"2025-07-20","value":0.073128},{"date":"2025-07-27","value":0.073319},{"date":"2025-08-03","value":0.073509},{"date":"2025-08-10","value":0.0737},{"date":"2025-08-17","value":0.07389},{"date":"2025-08-24","value":0.074081},{"date":"2025-08-31","value":0.074271},{"date":"2025-09-07","value":0.074462},{"date":"2025-09-14","value":0.074652},{"date":"2025-09-21","value":0.074843},{"date":"2025-09-28","value":0.075033},{"date":"2025-10-05","value":0.075224},{"date":"2025-10-12","value":0.075414},{"date":"2025-10-19","value":0.075605},{"date":"2025-10-26","value":0.073509}],"Energy drinks":[{"date":"2025-05-11","value":0.48277},{"date":"2025-05-18","value":0.483231},{"date":"2025-05-25","value":0.483231},{"date":"2025-06-01","value":0.48277},{"date":"2025-06-08","value":0.481838},{"date":"2025-06-15","value":0.480906},{"date":"2025-06-22","value":0.479974},{"date":"2025-06-29","value":0.479513},{"date":"2025-07-06","value":0.479513},{"date":"2025-07-13","value":0.479974},{"date":"2025-07-20","value":0.480906},{"date":"2025-07-27","value":0.481838},{"date":"2025-08-03","value":0.48277},{"date":"2025-08-10","value":0.483231},{"date":"2025-08-17","value":0.483231},{"date":"2025-08-24","value":0.48277},{"date":"2025-08-31","value":0.481838},{"date":"2025-09-07","value":0.480906},{"date":"2025-09-14","value":0.479974},{"date":"2025-09-21","value":0.479042},{"date":"2025-09-28","value":0.47811},{"date":"2025-10-05","value":0.477178},{"date":"2025-10-12","value":0.476247},{"date":"2025-10-19","value":0.475315},{"date":"2025-10-26","value":0.477178}],"Fitness":[{"date":"2025-05-11","value":0.32408},{"date":"2025-05-18","value":0.323309},{"date":"2025-05-25","value":0.322538},{"date":"2025-06-01","value":0.321766},{"date":"2025-06-08","value":0.320995},{"date":"2025-06-15","value":0.320224},{"date":"2025-06-22","value":0.319452},{"date":"2025-06-29","value":0.318681},{"date":"2025-07-06","value":0.31791},{"date":"2025-07-13","value":0.317138},{"date":"2025-07-20","value":0.316367},{"date":"2025-07-27","value":0.315596},{"date":"2025-08-03","value":0.314824},{"date":"2025-08-10","value":0.314053},{"date":"2025-08-17","value":0.313282},{"date":"2025-08-24","value":0.31251},{"date":"2025-08-31","value":0.311739},{"date":"2025-09-07","value":0.310968},{"date":"2025-09-14","value":0.310196},{"date":"2025-09-21","value":0.309425},{"date":"2025-09-28","value":0.308654},{"date":"2025-10-05","value":0.307882},{"date":"2025-10-12","value":0.307111},{"date":"2025-10-19","value":0.306339},{"date":"2025-10-26","value":0.321766}],"Food/Bev Delivery":[{"date":"2025-05-11","value":0.366871},{"date":"2025-05-18","value":0.366871},{"date":"2025-05-25","value":0.366871},{"date":"2025-06-01","value":0.366871},{"date":"2025-06-08","value":0.366871},{"date":"2025-06-15","value":0.366871},{"date":"2025-06-22","value":0.366871},{"date":"2025-06-29","value":0.366871},{"date":"2025-07-06","value":0.366871},{"date":"2025-07-13","value":0.366871},{"date":"2025-07-20","value":0.366871},{"date":"2025-07-27","value":0.366871},{"date":"2025-08-03","value":0.366871},{"date":"2025-08-10","value":0.366871},{"date":"2025-08-17","value":0.366871},{"date":"2025-08-24","value":0.366871},{"date":"2025-08-31","value":0.366871},{"date":"2025-09-07","value":0.366871},{"date":"2025-09-14","value":0.366871},{"date":"2025-09-21","value":0.366871},{"date":"2025-09-28","value":0.366871},{"date":"2025-10-05","value":0.366871},{"date":"2025-10-12","value":0.366871},{"date":"2025-10-19","value":0.366871},{"date":"2025-10-26","value":0.360225}],"Gaming consoles":[{"date":"2025-05-11","value":0.919476},{"date":"2025-05-18","value":0.919476},{"date":"2025-05-25","value":0.919476},{"date":"2025-06-01","value":0.919476},{"date":"2025-06-08","value":0.919476},{"date":"2025-06-15","value":0.919476},{"date":"2025-06-22","value":0.919476},{"date":"2025-06-29","value":0.919476},{"date":"2025-07-06","value":0.919476},{"date":"2025-07-13","value":0.919476},{"date":"2025-07-20","value":0.919476},{"date":"2025-07-27","value":0.919476},{"date":"2025-08-03","value":0.919476},{"date":"2025-08-10","value":0.919476},{"date":"2025-08-17","value":0.919476},{"date":"2025-08-24","value":0.919476},{"date":"2025-08-31","value":0.919476},{"date":"2025-09-07","value":0.919476},{"date":"2025-09-14","value":0.919476},{"date":"2025-09-21","value":0.919476},{"date":"2025-09-28","value":0.919476},{"date":"2025-10-05","value":0.919476},{"date":"2025-10-12","value":0.919476},{"date":"2025-10-19","value":0.919476},{"date":"2025-10-26","value":0.938834}],"Grocery Retailers":[{"date":"2025-05-11","value":1.107767},{"date":"2025-05-18","value":1.107767},{"date":"2025-05-25","value":1.107767},{"date":"2025-06-01","value":1.105555},{"date":"2025-06-08","value":1.103342},{"date":"2025-06-15","value":1.10113},{"date":"2025-06-22","value":1.098918},{"date":"2025-06-29","value":1.096705},{"date":"2025-07-06","value":1.094493},{"date":"2025-07-13","value":1.092281},{"date":"2025-07-20","value":1.090068},{"date":"2025-07-27","value":1.087856},{"date":"2025-08-03","value":1.085644},{"date":"2025-08-10","value":1.083431},{"date":"2025-08-17","value":1.081219},{"date":"2025-08-24","value":1.079007},{"date":"2025-08-31","value":1.076794},{"date":"2025-09-07","value":1.074582},{"date":"2025-09-14","value":1.07237},{"date":"2025-09-21","value":1.070157},{"date":"2025-09-28","value":1.067945},{"date":"2025-10-05","value":1.065733},{"date":"2025-10-12","value":1.063521},{"date":"2025-10-19","value":1.061308},{"date":"2025-10-26","value":1.088414}],"Luxury hotels":[{"date":"2025-05-11","value":0},{"date":"2025-05-18","value":0},{"date":"2025-05-25","value":0},{"date":"2025-06-01","value":0},{"date":"2025-06-08","value":0},{"date":"2025-06-15","value":0},{"date":"2025-06-22","value":0},{"date":"2025-06-29","value":0},{"date":"2025-07-06","value":0},{"date":"2025-07-13","value":0},{"date":"2025-07-20","value":0},{"date":"2025-07-27","value":0},{"date":"2025-08-03","value":0},{"date":"2025-08-10","value":0},{"date":"2025-08-17","value":0},{"date":"2025-08-24","value":0},{"date":"2025-08-31","value":0},{"date":"2025-09-07","value":0},{"date":"2025-09-14","value":0},{"date":"2025-09-21","value":0},{"date":"2025-09-28","value":0},{"date":"2025-10-05","value":0},{"date":"2025-10-12","value":0},{"date":"2025-10-19","value":0},{"date":"2025-10-26","value":0}],"Payments":[{"date":"2025-05-11","value":0.209849},{"date":"2025-05-18","value":0.209849},{"date":"2025-05-25","value":0.209849},{"date":"2025-06-01","value":0.209849},{"date":"2025-06-08","value":0.209849},{"date":"2025-06-15","value":0.209849},{"date":"2025-06-22","value":0.209849},{"date":"2025-06-29","value":0.209849},{"date":"2025-07-06","value":0.209849},{"date":"2025-07-13","value":0.209849},{"date":"2025-07-20","value":0.209849},{"date":"2025-07-27","value":0.209849},{"date":"2025-08-03","value":0.209849},{"date":"2025-08-10","value":0.209849},{"date":"2025-08-17","value":0.209849},{"date":"2025-08-24","value":0.209849},{"date":"2025-08-31","value":0.209849},{"date":"2025-09-07","value":0.209849},{"date":"2025-09-14","value":0.209849},{"date":"2025-09-21","value":0.209849},{"date":"2025-09-28","value":0.209849},{"date":"2025-10-05","value":0.209849},{"date":"2025-10-12","value":0.209849},{"date":"2025-10-19","value":0.209849},{"date":"2025-10-26","value":0.2104}],"Pharmacy":[{"date":"2025-05-11","value":0.242355},{"date":"2025-05-18","value":0.242355},{"date":"2025-05-25","value":0.242355},{"date":"2025-06-01","value":0.242355},{"date":"2025-06-08","value":0.242355},{"date":"2025-06-15","value":0.242355},{"date":"2025-06-22","value":0.242355},{"date":"2025-06-29","value":0.242355},{"date":"2025-07-06","value":0.242355},{"date":"2025-07-13","value":0.242355},{"date":"2025-07-20","value":0.242355},{"date":"2025-07-27","value":0.242355},{"date":"2025-08-03","value":0.242355},{"date":"2025-08-10","value":0.242355},{"date":"2025-08-17","value":0.242355},{"date":"2025-08-24","value":0.242355},{"date":"2025-08-31","value":0.242355},{"date":"2025-09-07","value":0.242355},{"date":"2025-09-14","value":0.242355},{"date":"2025-09-21","value":0.242355},{"date":"2025-09-28","value":0.242355},{"date":"2025-10-05","value":0.242355},{"date":"2025-10-12","value":0.242355},{"date":"2025-10-19","value":0.242355},{"date":"2025-10-26","value":0.241877}],"QSR":[{"date":"2025-05-11","value":1.71011},{"date":"2025-05-18","value":1.708386},{"date":"2025-05-25","value":1.706662},{"date":"2025-06-01","value":1.704938},{"date":"2025-06-08","value":1.703214},{"date":"2025-06-15","value":1.70149},{"date":"2025-06-22","value":1.699766},{"date":"2025-06-29","value":1.698042},{"date":"2025-07-06","value":1.696318},{"date":"2025-07-13","value":1.694594},{"date":"2025-07-20","value":1.69287},{"date":"2025-07-27","value":1.691146},{"date":"2025-08-03","value":1.689422},{"date":"2025-08-10","value":1.687698},{"date":"2025-08-17","value":1.685974},{"date":"2025-08-24","value":1.68425},{"date":"2025-08-31","value":1.682526},{"date":"2025-09-07","value":1.680802},{"date":"2025-09-14","value":1.679078},{"date":"2025-09-21","value":1.677354},{"date":"2025-09-28","value":1.67563},{"date":"2025-10-05","value":1.673906},{"date":"2025-10-12","value":1.672182},{"date":"2025-10-19","value":1.670458},{"date":"2025-10-26","value":1.708386}],"Real Estate":[{"date":"2025-05-11","value":0.050091},{"date":"2025-05-18","value":0.050091},{"date":"2025-05-25","value":0.050091},{"date":"2025-06-01","value":0.050091},{"date":"2025-06-08","value":0.050091},{"date":"2025-06-15","value":0.050091},{"date":"2025-06-22","value":0.050091},{"date":"2025-06-29","value":0.050091},{"date":"2025-07-06","value":0.050091},{"date":"2025-07-13","value":0.050091},{"date":"2025-07-20","value":0.050091},{"date":"2025-07-27","value":0.050091},{"date":"2025-08-03","value":0.050091},{"date":"2025-08-10","value":0.050091},{"date":"2025-08-17","value":0.050091},{"date":"2025-08-24","value":0.050091},{"date":"2025-08-31","value":0.050091},{"date":"2025-09-07","value":0.050091},{"date":"2025-09-14","value":0.050091},{"date":"2025-09-21","value":0.050091},{"date":"2025-09-28","value":0.050091},{"date":"2025-10-05","value":0.050091},{"date":"2025-10-12","value":0.050091},{"date":"2025-10-19","value":0.050091},{"date":"2025-10-26","value":0.050046}],"Ridesharing":[{"date":"2025-05-11","value":0.225898},{"date":"2025-05-18","value":0.225898},{"date":"2025-05-25","value":0.225898},{"date":"2025-06-01","value":0.225898},{"date":"2025-06-08","value":0.225898},{"date":"2025-06-15","value":0.225898},{"date":"2025-06-22","value":0.225898},{"date":"2025-06-29","value":0.225898},{"date":"2025-07-06","value":0.225898},{"date":"2025-07-13","value":0.225898},{"date":"2025-07-20","value":0.225898},{"date":"2025-07-27","value":0.225898},{"date":"2025-08-03","value":0.225898},{"date":"2025-08-10","value":0.225898},{"date":"2025-08-17","value":0.225898},{"date":"2025-08-24","value":0.225898},{"date":"2025-08-31","value":0.225898},{"date":"2025-09-07","value":0.225898},{"date":"2025-09-14","value":0.225898},{"date":"2025-09-21","value":0.225898},{"date":"2025-09-28","value":0.225898},{"date":"2025-10-05","value":0.225898},{"date":"2025-10-12","value":0.225898},{"date":"2025-10-19","value":0.225898},{"date":"2025-10-26","value":0.219403}],"Social media":[{"date":"2025-05-11","value":6.838851},{"date":"2025-05-18","value":6.838851},{"date":"2025-05-25","value":6.838851},{"date":"2025-06-01","value":6.838851},{"date":"2025-06-08","value":6.838851},{"date":"2025-06-15","value":6.838851},{"date":"2025-06-22","value":6.838851},{"date":"2025-06-29","value":6.838851},{"date":"2025-07-06","value":6.838851},{"date":"2025-07-13","value":6.838851},{"date":"2025-07-20","value":6.838851},{"date":"2025-07-27","value":6.838851},{"date":"2025-08-03","value":6.838851},{"date":"2025-08-10","value":6.838851},{"date":"2025-08-17","value":6.838851},{"date":"2025-08-24","value":6.838851},{"date":"2025-08-31","value":6.838851},{"date":"2025-09-07","value":6.838851},{"date":"2025-09-14","value":6.838851},{"date":"2025-09-21","value":6.838851},{"date":"2025-09-28","value":6.838851},{"date":"2025-10-05","value":6.838851},{"date":"2025-10-12","value":6.838851},{"date":"2025-10-19","value":6.838851},{"date":"2025-10-26","value":6.777507}],"Spirits":[{"date":"2025-05-11","value":2.133034},{"date":"2025-05-18","value":2.133034},{"date":"2025-05-25","value":2.133034},{"date":"2025-06-01","value":2.133034},{"date":"2025-06-08","value":2.133034},{"date":"2025-06-15","value":2.133034},{"date":"2025-06-22","value":2.133034},{"date":"2025-06-29","value":2.133034},{"date":"2025-07-06","value":2.133034},{"date":"2025-07-13","value":2.133034},{"date":"2025-07-20","value":2.133034},{"date":"2025-07-27","value":2.133034},{"date":"2025-08-03","value":2.133034},{"date":"2025-08-10","value":2.133034},{"date":"2025-08-17","value":2.133034},{"date":"2025-08-24","value":2.133034},{"date":"2025-08-31","value":2.133034},{"date":"2025-09-07","value":2.133034},{"date":"2025-09-14","value":2.133034},{"date":"2025-09-21","value":2.133034},{"date":"2025-09-28","value":2.133034},{"date":"2025-10-05","value":2.133034},{"date":"2025-10-12","value":2.133034},{"date":"2025-10-19","value":2.133034},{"date":"2025-10-26","value":2.126702}],"Streaming Apps":[{"date":"2025-05-11","value":5.023344},{"date":"2025-05-18","value":5.023344},{"date":"2025-05-25","value":5.023344},{"date":"2025-06-01","value":5.023344},{"date":"2025-06-08","value":5.023344},{"date":"2025-06-15","value":5.023344},{"date":"2025-06-22","value":5.023344},{"date":"2025-06-29","value":5.023344},{"date":"2025-07-06","value":5.023344},{"date":"2025-07-13","value":5.023344},{"date":"2025-07-20","value":5.023344},{"date":"2025-07-27","value":5.023344},{"date":"2025-08-03","value":5.023344},{"date":"2025-08-10","value":5.023344},{"date":"2025-08-17","value":5.023344},{"date":"2025-08-24","value":5.023344},{"date":"2025-08-31","value":5.023344},{"date":"2025-09-07","value":5.023344},{"date":"2025-09-14","value":5.023344},{"date":"2025-09-21","value":5.023344},{"date":"2025-09-28","value":5.023344},{"date":"2025-10-05","value":5.023344},{"date":"2025-10-12","value":5.023344},{"date":"2025-10-19","value":5.023344},{"date":"2025-10-26","value":5.238925}]};
-
-        // Industry data from Summary sheet
-        const rawData = [
-            { category: "Crypto Apps", ics: 129.2, icsChange: 2.6, perCapita: 0.03, perCapitaChangePercent: 14.6, brandCount: 6 },
-            { category: "Streaming Apps", ics: 106.8, icsChange: 0.2, perCapita: 5.02, perCapitaChangePercent: 4.3, brandCount: 12 },
-            { category: "AI Platforms", ics: 117, icsChange: -1.1, perCapita: 0.63, perCapitaChangePercent: 3.5, brandCount: 8 },
-            { category: "Gaming consoles", ics: 106.2, icsChange: 1.4, perCapita: 0.92, perCapitaChangePercent: 2.1, brandCount: 3 },
-            { category: "Casual Dining", ics: 100.7, icsChange: -1.9, perCapita: 0.24, perCapitaChangePercent: 1.1, brandCount: 10 },
-            { category: "Airlines", ics: 116.7, icsChange: -1.5, perCapita: 0.05, perCapitaChangePercent: 1.1, brandCount: 10 },
-            { category: "QSR", ics: 100.3, icsChange: -0.4, perCapita: 1.71, perCapitaChangePercent: 0.5, brandCount: 15 },
-            { category: "Spirits", ics: 112.1, icsChange: -1.9, perCapita: 2.13, perCapitaChangePercent: 0.3, brandCount: 23 },
-            { category: "Payments", ics: 107.1, icsChange: -2.2, perCapita: 0.21, perCapitaChangePercent: 0.3, brandCount: 7 },
-            { category: "Real Estate", ics: 114.3, icsChange: -0.9, perCapita: 0.05, perCapitaChangePercent: -0.1, brandCount: 6 },
-            { category: "Energy drinks", ics: 112.3, icsChange: -1.4, perCapita: 0.48, perCapitaChangePercent: -0.2, brandCount: 5 },
-            { category: "Pharmacy", ics: 111.4, icsChange: -0.4, perCapita: 0.24, perCapitaChangePercent: -0.2, brandCount: 5 },
-            { category: "Breakfast restaurants", ics: 110.1, icsChange: -0.8, perCapita: 0.06, perCapitaChangePercent: -0.4, brandCount: 11 },
-            { category: "Credit card networks", ics: 110.2, icsChange: 1.5, perCapita: 3.97, perCapitaChangePercent: -0.7, brandCount: 4 },
-            { category: "Baby products", ics: 116.6, icsChange: -1.7, perCapita: 0.87, perCapitaChangePercent: -0.9, brandCount: 8 },
-            { category: "Social media", ics: 102.6, icsChange: 0.1, perCapita: 6.84, perCapitaChangePercent: -0.9, brandCount: 7 },
-            { category: "Automotive", ics: 122, icsChange: -0.8, perCapita: 20.79, perCapitaChangePercent: -1.1, brandCount: 28 },
-            { category: "Fitness", ics: 128.6, icsChange: -0.8, perCapita: 0.32, perCapitaChangePercent: -1.3, brandCount: 9 },
-            { category: "Bottled water", ics: 100.3, icsChange: -3, perCapita: 2.87, perCapitaChangePercent: -1.6, brandCount: 9 },
-            { category: "Grocery Retailers", ics: 106.2, icsChange: -0.9, perCapita: 1.09, perCapitaChangePercent: -1.8, brandCount: 13 },
-            { category: "Food/Bev Delivery", ics: 105.3, icsChange: -3.3, perCapita: 0.36, perCapitaChangePercent: -1.8, brandCount: 4 },
-            { category: "Luxury hotels", ics: 123.9, icsChange: 0.3, perCapita: 0, perCapitaChangePercent: -2.1, brandCount: 8 },
-            { category: "Department Stores", ics: 110.1, icsChange: 0.9, perCapita: 0.07, perCapitaChangePercent: -2.2, brandCount: 7 },
-            { category: "Ridesharing", ics: 105.1, icsChange: -0.1, perCapita: 0.22, perCapitaChangePercent: -2.9, brandCount: 2 }
-        ];
-
-        let mainChart, scatterChart, timeseriesChart;
-        let currentMetric = 'perCapitaChangePercent';
-        let currentSort = 'perCapitaChangePercent';
-        let currentIndustry = 'Casual Dining';
-
-        const metricLabels = {
-            perCapitaChangePercent: '% Change Per Capita',
-            icsChange: 'ICS Change (pts)',
-            ics: 'ICS Score'
-        };
-
-        function getColor(value, metric) {
-            if (metric === 'perCapitaChangePercent' || metric === 'icsChange') {
-                if (value > 2) return '#10b981';
-                if (value > 0) return '#6ee7b7';
-                if (value > -1) return '#fbbf24';
-                if (value > -2) return '#fb923c';
-                return '#ef4444';
-            }
-            return '#3b82f6';
+window.addEventListener('load', function() {
+    if (typeof Chart === 'undefined') { alert('Chart.js failed to load'); return; }
+    
+    const timeseriesRawData = {
+        "AI Platforms": [{date:"2025-05-11",value:0.478191},{date:"2025-05-18",value:0.534838},{date:"2025-05-25",value:0.575874},{date:"2025-06-01",value:0.578920},{date:"2025-06-08",value:0.597892},{date:"2025-06-15",value:0.610708},{date:"2025-06-22",value:0.619284},{date:"2025-06-29",value:0.604313},{date:"2025-07-06",value:0.607584},{date:"2025-07-13",value:0.604645},{date:"2025-07-20",value:0.605985},{date:"2025-07-27",value:0.605867},{date:"2025-08-03",value:0.624733},{date:"2025-08-10",value:0.619471},{date:"2025-08-17",value:0.595765},{date:"2025-08-24",value:0.612946},{date:"2025-08-31",value:0.609395},{date:"2025-09-07",value:0.619669},{date:"2025-09-14",value:0.616935},{date:"2025-09-21",value:0.623292},{date:"2025-09-28",value:0.620276},{date:"2025-10-05",value:0.620085},{date:"2025-10-12",value:0.619894},{date:"2025-10-19",value:0.621042},{date:"2025-10-26",value:0.627483}],
+        "Airlines": [{date:"2025-05-11",value:0.048868},{date:"2025-05-18",value:0.052322},{date:"2025-05-25",value:0.055746},{date:"2025-06-01",value:0.055284},{date:"2025-06-08",value:0.055326},{date:"2025-06-15",value:0.055893},{date:"2025-06-22",value:0.055313},{date:"2025-06-29",value:0.052910},{date:"2025-07-06",value:0.051552},{date:"2025-07-13",value:0.052594},{date:"2025-07-20",value:0.053107},{date:"2025-07-27",value:0.052202},{date:"2025-08-03",value:0.050307},{date:"2025-08-10",value:0.049513},{date:"2025-08-17",value:0.049243},{date:"2025-08-24",value:0.049539},{date:"2025-08-31",value:0.050369},{date:"2025-09-07",value:0.050936},{date:"2025-09-14",value:0.050914},{date:"2025-09-21",value:0.050782},{date:"2025-09-28",value:0.050094},{date:"2025-10-05",value:0.049319},{date:"2025-10-12",value:0.048826},{date:"2025-10-19",value:0.049530},{date:"2025-10-26",value:0.050066}],
+        "Automotive": [{date:"2025-05-11",value:20.370073},{date:"2025-05-18",value:21.656869},{date:"2025-05-25",value:23.633229},{date:"2025-06-01",value:24.369015},{date:"2025-06-08",value:25.583072},{date:"2025-06-15",value:25.143770},{date:"2025-06-22",value:24.894885},{date:"2025-06-29",value:23.222763},{date:"2025-07-06",value:22.101023},{date:"2025-07-13",value:21.495724},{date:"2025-07-20",value:21.304548},{date:"2025-07-27",value:21.064529},{date:"2025-08-03",value:20.472623},{date:"2025-08-10",value:20.452460},{date:"2025-08-17",value:20.325125},{date:"2025-08-24",value:20.267392},{date:"2025-08-31",value:20.706851},{date:"2025-09-07",value:21.048599},{date:"2025-09-14",value:21.812401},{date:"2025-09-21",value:21.318028},{date:"2025-09-28",value:21.548756},{date:"2025-10-05",value:21.142259},{date:"2025-10-12",value:21.155087},{date:"2025-10-19",value:21.026563},{date:"2025-10-26",value:20.788769}],
+        "Baby products": [{date:"2025-05-11",value:0.689429},{date:"2025-05-18",value:0.874956},{date:"2025-05-25",value:0.939045},{date:"2025-06-01",value:0.967461},{date:"2025-06-08",value:1.051483},{date:"2025-06-15",value:1.107762},{date:"2025-06-22",value:1.115030},{date:"2025-06-29",value:1.032605},{date:"2025-07-06",value:0.986332},{date:"2025-07-13",value:0.971862},{date:"2025-07-20",value:0.957155},{date:"2025-07-27",value:0.933125},{date:"2025-08-03",value:0.917678},{date:"2025-08-10",value:0.927304},{date:"2025-08-17",value:0.919505},{date:"2025-08-24",value:0.923468},{date:"2025-08-31",value:0.930784},{date:"2025-09-07",value:0.945185},{date:"2025-09-14",value:0.913486},{date:"2025-09-21",value:0.918843},{date:"2025-09-28",value:0.944987},{date:"2025-10-05",value:0.956669},{date:"2025-10-12",value:0.918645},{date:"2025-10-19",value:0.875231},{date:"2025-10-26",value:0.867501}],
+        "Bottled water": [{date:"2025-05-11",value:2.728047},{date:"2025-05-18",value:2.997788},{date:"2025-05-25",value:3.305275},{date:"2025-06-01",value:3.348104},{date:"2025-06-08",value:3.348541},{date:"2025-06-15",value:3.245556},{date:"2025-06-22",value:3.185186},{date:"2025-06-29",value:3.121388},{date:"2025-07-06",value:3.049786},{date:"2025-07-13",value:3.030287},{date:"2025-07-20",value:2.949978},{date:"2025-07-27",value:2.844214},{date:"2025-08-03",value:2.829164},{date:"2025-08-10",value:2.881853},{date:"2025-08-17",value:2.986034},{date:"2025-08-24",value:3.017032},{date:"2025-08-31",value:3.042912},{date:"2025-09-07",value:3.158344},{date:"2025-09-14",value:3.182486},{date:"2025-09-21",value:3.152360},{date:"2025-09-28",value:3.043071},{date:"2025-10-05",value:3.014929},{date:"2025-10-12",value:2.965957},{date:"2025-10-19",value:2.918175},{date:"2025-10-26",value:2.870978}],
+        "Breakfast restaurants": [{date:"2025-05-11",value:0.062399},{date:"2025-05-18",value:0.064156},{date:"2025-05-25",value:0.067124},{date:"2025-06-01",value:0.067137},{date:"2025-06-08",value:0.067369},{date:"2025-06-15",value:0.067982},{date:"2025-06-22",value:0.068174},{date:"2025-06-29",value:0.064829},{date:"2025-07-06",value:0.061152},{date:"2025-07-13",value:0.059410},{date:"2025-07-20",value:0.059842},{date:"2025-07-27",value:0.060618},{date:"2025-08-03",value:0.060698},{date:"2025-08-10",value:0.060854},{date:"2025-08-17",value:0.060644},{date:"2025-08-24",value:0.060057},{date:"2025-08-31",value:0.060530},{date:"2025-09-07",value:0.060687},{date:"2025-09-14",value:0.061323},{date:"2025-09-21",value:0.061221},{date:"2025-09-28",value:0.060571},{date:"2025-10-05",value:0.060294},{date:"2025-10-12",value:0.059555},{date:"2025-10-19",value:0.059768},{date:"2025-10-26",value:0.059539}],
+        "Casual Dining": [{date:"2025-05-11",value:0.217324},{date:"2025-05-18",value:0.240200},{date:"2025-05-25",value:0.253273},{date:"2025-06-01",value:0.260803},{date:"2025-06-08",value:0.260996},{date:"2025-06-15",value:0.261172},{date:"2025-06-22",value:0.256434},{date:"2025-06-29",value:0.251953},{date:"2025-07-06",value:0.245837},{date:"2025-07-13",value:0.245102},{date:"2025-07-20",value:0.250534},{date:"2025-07-27",value:0.250175},{date:"2025-08-03",value:0.248728},{date:"2025-08-10",value:0.248372},{date:"2025-08-17",value:0.252715},{date:"2025-08-24",value:0.253020},{date:"2025-08-31",value:0.248979},{date:"2025-09-07",value:0.248300},{date:"2025-09-14",value:0.245546},{date:"2025-09-21",value:0.246763},{date:"2025-09-28",value:0.243298},{date:"2025-10-05",value:0.240109},{date:"2025-10-12",value:0.236921},{date:"2025-10-19",value:0.233053},{date:"2025-10-26",value:0.235677}],
+        "Credit card networks": [{date:"2025-05-11",value:4.687952},{date:"2025-05-18",value:5.057260},{date:"2025-05-25",value:5.442759},{date:"2025-06-01",value:5.559313},{date:"2025-06-08",value:5.442639},{date:"2025-06-15",value:5.309357},{date:"2025-06-22",value:5.132363},{date:"2025-06-29",value:5.011532},{date:"2025-07-06",value:4.986491},{date:"2025-07-13",value:5.055322},{date:"2025-07-20",value:5.049191},{date:"2025-07-27",value:4.877064},{date:"2025-08-03",value:4.911289},{date:"2025-08-10",value:5.167875},{date:"2025-08-17",value:5.412296},{date:"2025-08-24",value:5.256660},{date:"2025-08-31",value:4.958842},{date:"2025-09-07",value:4.525357},{date:"2025-09-14",value:4.152220},{date:"2025-09-21",value:3.892316},{date:"2025-09-28",value:3.838221},{date:"2025-10-05",value:3.854180},{date:"2025-10-12",value:3.909364},{date:"2025-10-19",value:3.997451},{date:"2025-10-26",value:3.969015}],
+        "Crypto Apps": [{date:"2025-05-18",value:0.026127},{date:"2025-05-25",value:0.030540},{date:"2025-06-01",value:0.033009},{date:"2025-06-08",value:0.032566},{date:"2025-06-15",value:0.034056},{date:"2025-06-22",value:0.034243},{date:"2025-06-29",value:0.031533},{date:"2025-07-06",value:0.030592},{date:"2025-07-13",value:0.031265},{date:"2025-07-20",value:0.031534},{date:"2025-07-27",value:0.030003},{date:"2025-08-03",value:0.027447},{date:"2025-08-10",value:0.029149},{date:"2025-08-17",value:0.031421},{date:"2025-08-24",value:0.031496},{date:"2025-08-31",value:0.029429},{date:"2025-09-07",value:0.027225},{date:"2025-09-14",value:0.029150},{date:"2025-09-21",value:0.028510},{date:"2025-09-28",value:0.028472},{date:"2025-10-05",value:0.024388},{date:"2025-10-12",value:0.026646},{date:"2025-10-19",value:0.027258},{date:"2025-10-26",value:0.031227}],
+        "Department Stores": [{date:"2025-05-11",value:0.066810},{date:"2025-05-18",value:0.066613},{date:"2025-05-25",value:0.066773},{date:"2025-06-01",value:0.067576},{date:"2025-06-08",value:0.067295},{date:"2025-06-15",value:0.066612},{date:"2025-06-22",value:0.066122},{date:"2025-06-29",value:0.065593},{date:"2025-07-06",value:0.066692},{date:"2025-07-13",value:0.066879},{date:"2025-07-20",value:0.068112},{date:"2025-07-27",value:0.068200},{date:"2025-08-03",value:0.068127},{date:"2025-08-10",value:0.067385},{date:"2025-08-17",value:0.067220},{date:"2025-08-24",value:0.066667},{date:"2025-08-31",value:0.066191},{date:"2025-09-07",value:0.065216},{date:"2025-09-14",value:0.064706},{date:"2025-09-21",value:0.066693},{date:"2025-09-28",value:0.068126},{date:"2025-10-05",value:0.070460},{date:"2025-10-12",value:0.070580},{date:"2025-10-19",value:0.072559},{date:"2025-10-26",value:0.070939}],
+        "Energy drinks": [{date:"2025-05-11",value:0.475959},{date:"2025-05-18",value:0.547927},{date:"2025-05-25",value:0.595954},{date:"2025-06-01",value:0.625265},{date:"2025-06-08",value:0.616888},{date:"2025-06-15",value:0.602899},{date:"2025-06-22",value:0.583266},{date:"2025-06-29",value:0.562466},{date:"2025-07-06",value:0.566725},{date:"2025-07-13",value:0.546176},{date:"2025-07-20",value:0.542790},{date:"2025-07-27",value:0.529583},{date:"2025-08-03",value:0.529689},{date:"2025-08-10",value:0.542996},{date:"2025-08-17",value:0.549778},{date:"2025-08-24",value:0.549405},{date:"2025-08-31",value:0.551095},{date:"2025-09-07",value:0.528187},{date:"2025-09-14",value:0.528770},{date:"2025-09-21",value:0.511090},{date:"2025-09-28",value:0.525797},{date:"2025-10-05",value:0.519336},{date:"2025-10-12",value:0.494636},{date:"2025-10-19",value:0.483441},{date:"2025-10-26",value:0.482460}],
+        "Fitness": [{date:"2025-05-11",value:0.303882},{date:"2025-05-18",value:0.359980},{date:"2025-05-25",value:0.416853},{date:"2025-06-01",value:0.426633},{date:"2025-06-08",value:0.438780},{date:"2025-06-15",value:0.431803},{date:"2025-06-22",value:0.422584},{date:"2025-06-29",value:0.386410},{date:"2025-07-06",value:0.352430},{date:"2025-07-13",value:0.348048},{date:"2025-07-20",value:0.348891},{date:"2025-07-27",value:0.349771},{date:"2025-08-03",value:0.343520},{date:"2025-08-10",value:0.345631},{date:"2025-08-17",value:0.345231},{date:"2025-08-24",value:0.344803},{date:"2025-08-31",value:0.337500},{date:"2025-09-07",value:0.337497},{date:"2025-09-14",value:0.339574},{date:"2025-09-21",value:0.344600},{date:"2025-09-28",value:0.333799},{date:"2025-10-05",value:0.325830},{date:"2025-10-12",value:0.316890},{date:"2025-10-19",value:0.327878},{date:"2025-10-26",value:0.323764}],
+        "Food/Bev Delivery": [{date:"2025-05-11",value:0.270207},{date:"2025-05-18",value:0.302809},{date:"2025-05-25",value:0.337950},{date:"2025-06-01",value:0.350272},{date:"2025-06-08",value:0.351660},{date:"2025-06-15",value:0.350450},{date:"2025-06-22",value:0.350814},{date:"2025-06-29",value:0.337452},{date:"2025-07-06",value:0.338344},{date:"2025-07-13",value:0.340192},{date:"2025-07-20",value:0.341915},{date:"2025-07-27",value:0.335139},{date:"2025-08-03",value:0.327761},{date:"2025-08-10",value:0.329548},{date:"2025-08-17",value:0.338226},{date:"2025-08-24",value:0.341467},{date:"2025-08-31",value:0.352152},{date:"2025-09-07",value:0.353998},{date:"2025-09-14",value:0.360265},{date:"2025-09-21",value:0.363818},{date:"2025-09-28",value:0.367267},{date:"2025-10-05",value:0.360573},{date:"2025-10-12",value:0.356557},{date:"2025-10-19",value:0.368199},{date:"2025-10-26",value:0.361704}],
+        "Gaming consoles": [{date:"2025-05-11",value:0.997583},{date:"2025-05-18",value:1.052011},{date:"2025-05-25",value:1.195742},{date:"2025-06-01",value:1.164262},{date:"2025-06-08",value:1.154071},{date:"2025-06-15",value:1.127744},{date:"2025-06-22",value:1.170288},{date:"2025-06-29",value:1.141149},{date:"2025-07-06",value:1.150700},{date:"2025-07-13",value:1.135509},{date:"2025-07-20",value:1.143919},{date:"2025-07-27",value:1.106492},{date:"2025-08-03",value:1.145307},{date:"2025-08-10",value:1.129251},{date:"2025-08-17",value:1.138002},{date:"2025-08-24",value:1.028548},{date:"2025-08-31",value:1.044245},{date:"2025-09-07",value:1.047004},{date:"2025-09-14",value:1.096943},{date:"2025-09-21",value:1.063586},{date:"2025-09-28",value:1.043440},{date:"2025-10-05",value:0.945068},{date:"2025-10-12",value:0.954680},{date:"2025-10-19",value:0.896113},{date:"2025-10-26",value:0.915057}],
+        "Grocery Retailers": [{date:"2025-05-11",value:1.090798},{date:"2025-05-18",value:1.155823},{date:"2025-05-25",value:1.203533},{date:"2025-06-01",value:1.225164},{date:"2025-06-08",value:1.216970},{date:"2025-06-15",value:1.227320},{date:"2025-06-22",value:1.220366},{date:"2025-06-29",value:1.195187},{date:"2025-07-06",value:1.169843},{date:"2025-07-13",value:1.170880},{date:"2025-07-20",value:1.164574},{date:"2025-07-27",value:1.150248},{date:"2025-08-03",value:1.153579},{date:"2025-08-10",value:1.172255},{date:"2025-08-17",value:1.194130},{date:"2025-08-24",value:1.204824},{date:"2025-08-31",value:1.217444},{date:"2025-09-07",value:1.229044},{date:"2025-09-14",value:1.235644},{date:"2025-09-21",value:1.186095},{date:"2025-09-28",value:1.145977},{date:"2025-10-05",value:1.095268},{date:"2025-10-12",value:1.090032},{date:"2025-10-19",value:1.105640},{date:"2025-10-26",value:1.086102}],
+        "Luxury hotels": [{date:"2025-05-11",value:0.000960},{date:"2025-05-18",value:0.000981},{date:"2025-05-25",value:0.001031},{date:"2025-06-01",value:0.001019},{date:"2025-06-08",value:0.001015},{date:"2025-06-15",value:0.001037},{date:"2025-06-22",value:0.001065},{date:"2025-06-29",value:0.001073},{date:"2025-07-06",value:0.001053},{date:"2025-07-13",value:0.001053},{date:"2025-07-20",value:0.001028},{date:"2025-07-27",value:0.001014},{date:"2025-08-03",value:0.001004},{date:"2025-08-10",value:0.001025},{date:"2025-08-17",value:0.001033},{date:"2025-08-24",value:0.001003},{date:"2025-08-31",value:0.000987},{date:"2025-09-07",value:0.000972},{date:"2025-09-14",value:0.001006},{date:"2025-09-21",value:0.001029},{date:"2025-09-28",value:0.001033},{date:"2025-10-05",value:0.001032},{date:"2025-10-12",value:0.001012},{date:"2025-10-19",value:0.001004},{date:"2025-10-26",value:0.000983}],
+        "Payments": [{date:"2025-05-11",value:0.199906},{date:"2025-05-18",value:0.211125},{date:"2025-05-25",value:0.224098},{date:"2025-06-01",value:0.225902},{date:"2025-06-08",value:0.225171},{date:"2025-06-15",value:0.218751},{date:"2025-06-22",value:0.221825},{date:"2025-06-29",value:0.217853},{date:"2025-07-06",value:0.215595},{date:"2025-07-13",value:0.213677},{date:"2025-07-20",value:0.212913},{date:"2025-07-27",value:0.217772},{date:"2025-08-03",value:0.213854},{date:"2025-08-10",value:0.217899},{date:"2025-08-17",value:0.215899},{date:"2025-08-24",value:0.224827},{date:"2025-08-31",value:0.223853},{date:"2025-09-07",value:0.223533},{date:"2025-09-14",value:0.218829},{date:"2025-09-21",value:0.221062},{date:"2025-09-28",value:0.222535},{date:"2025-10-05",value:0.223808},{date:"2025-10-12",value:0.221978},{date:"2025-10-19",value:0.211409},{date:"2025-10-26",value:0.211940}],
+        "Pharmacy": [{date:"2025-05-11",value:0.224669},{date:"2025-05-18",value:0.255521},{date:"2025-05-25",value:0.276218},{date:"2025-06-01",value:0.286907},{date:"2025-06-08",value:0.293886},{date:"2025-06-15",value:0.302444},{date:"2025-06-22",value:0.294023},{date:"2025-06-29",value:0.276087},{date:"2025-07-06",value:0.250416},{date:"2025-07-13",value:0.247311},{date:"2025-07-20",value:0.239434},{date:"2025-07-27",value:0.244128},{date:"2025-08-03",value:0.241619},{date:"2025-08-10",value:0.255246},{date:"2025-08-17",value:0.264052},{date:"2025-08-24",value:0.261521},{date:"2025-08-31",value:0.254909},{date:"2025-09-07",value:0.248380},{date:"2025-09-14",value:0.256220},{date:"2025-09-21",value:0.255324},{date:"2025-09-28",value:0.254446},{date:"2025-10-05",value:0.255030},{date:"2025-10-12",value:0.246963},{date:"2025-10-19",value:0.244789},{date:"2025-10-26",value:0.244351}],
+        "QSR": [{date:"2025-05-11",value:1.546515},{date:"2025-05-18",value:1.688940},{date:"2025-05-25",value:1.786288},{date:"2025-06-01",value:1.849750},{date:"2025-06-08",value:1.841115},{date:"2025-06-15",value:1.868571},{date:"2025-06-22",value:1.823728},{date:"2025-06-29",value:1.775254},{date:"2025-07-06",value:1.682489},{date:"2025-07-13",value:1.648944},{date:"2025-07-20",value:1.662076},{date:"2025-07-27",value:1.652440},{date:"2025-08-03",value:1.656297},{date:"2025-08-10",value:1.653432},{date:"2025-08-17",value:1.694770},{date:"2025-08-24",value:1.719289},{date:"2025-08-31",value:1.735318},{date:"2025-09-07",value:1.726213},{date:"2025-09-14",value:1.725039},{date:"2025-09-21",value:1.736860},{date:"2025-09-28",value:1.724988},{date:"2025-10-05",value:1.714263},{date:"2025-10-12",value:1.671647},{date:"2025-10-19",value:1.703611},{date:"2025-10-26",value:1.712524}],
+        "Real Estate": [{date:"2025-05-11",value:0.047434},{date:"2025-05-18",value:0.053716},{date:"2025-05-25",value:0.057656},{date:"2025-06-01",value:0.057929},{date:"2025-06-08",value:0.058965},{date:"2025-06-15",value:0.059667},{date:"2025-06-22",value:0.059520},{date:"2025-06-29",value:0.057672},{date:"2025-07-06",value:0.055007},{date:"2025-07-13",value:0.053549},{date:"2025-07-20",value:0.053127},{date:"2025-07-27",value:0.052687},{date:"2025-08-03",value:0.051255},{date:"2025-08-10",value:0.050302},{date:"2025-08-17",value:0.051288},{date:"2025-08-24",value:0.053032},{date:"2025-08-31",value:0.052668},{date:"2025-09-07",value:0.051672},{date:"2025-09-14",value:0.051153},{date:"2025-09-21",value:0.050926},{date:"2025-09-28",value:0.051723},{date:"2025-10-05",value:0.050954},{date:"2025-10-12",value:0.051020},{date:"2025-10-19",value:0.049911},{date:"2025-10-26",value:0.049839}],
+        "Ridesharing": [{date:"2025-05-11",value:0.217434},{date:"2025-05-18",value:0.228334},{date:"2025-05-25",value:0.241403},{date:"2025-06-01",value:0.243171},{date:"2025-06-08",value:0.240986},{date:"2025-06-15",value:0.244843},{date:"2025-06-22",value:0.242099},{date:"2025-06-29",value:0.236001},{date:"2025-07-06",value:0.227170},{date:"2025-07-13",value:0.224067},{date:"2025-07-20",value:0.224625},{date:"2025-07-27",value:0.224891},{date:"2025-08-03",value:0.226699},{date:"2025-08-10",value:0.232015},{date:"2025-08-17",value:0.233195},{date:"2025-08-24",value:0.232564},{date:"2025-08-31",value:0.231628},{date:"2025-09-07",value:0.226901},{date:"2025-09-14",value:0.221509},{date:"2025-09-21",value:0.219575},{date:"2025-09-28",value:0.223609},{date:"2025-10-05",value:0.229368},{date:"2025-10-12",value:0.226917},{date:"2025-10-19",value:0.223175},{date:"2025-10-26",value:0.216709}],
+        "Social media": [{date:"2025-05-11",value:7.232174},{date:"2025-05-18",value:7.309624},{date:"2025-05-25",value:7.412801},{date:"2025-06-01",value:7.515504},{date:"2025-06-08",value:7.539625},{date:"2025-06-15",value:7.598188},{date:"2025-06-22",value:7.542966},{date:"2025-06-29",value:7.673984},{date:"2025-07-06",value:7.739117},{date:"2025-07-13",value:7.703326},{date:"2025-07-20",value:7.678477},{date:"2025-07-27",value:7.609341},{date:"2025-08-03",value:7.612535},{date:"2025-08-10",value:7.559031},{date:"2025-08-17",value:7.644671},{date:"2025-08-24",value:7.834769},{date:"2025-08-31",value:7.690731},{date:"2025-09-07",value:7.480354},{date:"2025-09-14",value:7.197473},{date:"2025-09-21",value:7.098120},{date:"2025-09-28",value:7.062903},{date:"2025-10-05",value:7.035161},{date:"2025-10-12",value:7.000919},{date:"2025-10-19",value:6.898011},{date:"2025-10-26",value:6.838183}],
+        "Spirits": [{date:"2025-05-11",value:2.053552},{date:"2025-05-18",value:2.300440},{date:"2025-05-25",value:2.532530},{date:"2025-06-01",value:2.570431},{date:"2025-06-08",value:2.558523},{date:"2025-06-15",value:2.581354},{date:"2025-06-22",value:2.553737},{date:"2025-06-29",value:2.462783},{date:"2025-07-06",value:2.270261},{date:"2025-07-13",value:2.206204},{date:"2025-07-20",value:2.173345},{date:"2025-07-27",value:2.139328},{date:"2025-08-03",value:2.156843},{date:"2025-08-10",value:2.150954},{date:"2025-08-17",value:2.271928},{date:"2025-08-24",value:2.240554},{date:"2025-08-31",value:2.253252},{date:"2025-09-07",value:2.214281},{date:"2025-09-14",value:2.252194},{date:"2025-09-21",value:2.277673},{date:"2025-09-28",value:2.271821},{date:"2025-10-05",value:2.211705},{date:"2025-10-12",value:2.172560},{date:"2025-10-19",value:2.119829},{date:"2025-10-26",value:2.126652}],
+        "Streaming Apps": [{date:"2025-05-11",value:4.640803},{date:"2025-05-18",value:4.888905},{date:"2025-05-25",value:4.951467},{date:"2025-06-01",value:5.032203},{date:"2025-06-08",value:5.057497},{date:"2025-06-15",value:5.002667},{date:"2025-06-22",value:4.955460},{date:"2025-06-29",value:5.010164},{date:"2025-07-06",value:5.052901},{date:"2025-07-13",value:5.102196},{date:"2025-07-20",value:5.041676},{date:"2025-07-27",value:5.015461},{date:"2025-08-03",value:5.012690},{date:"2025-08-10",value:5.021205},{date:"2025-08-17",value:5.070074},{date:"2025-08-24",value:5.125712},{date:"2025-08-31",value:5.132039},{date:"2025-09-07",value:5.143035},{date:"2025-09-14",value:5.127264},{date:"2025-09-21",value:5.057271},{date:"2025-09-28",value:4.983723},{date:"2025-10-05",value:4.804538},{date:"2025-10-12",value:4.740712},{date:"2025-10-19",value:4.812616},{date:"2025-10-26",value:5.020660}]
+    };
+    const rawData=[{category:"Crypto Apps",ics:129.2,icsChange:2.6,perCapita:0.03,perCapitaChangePercent:14.6,brandCount:6},{category:"Streaming Apps",ics:106.8,icsChange:0.2,perCapita:5.02,perCapitaChangePercent:4.3,brandCount:12},{category:"AI Platforms",ics:117,icsChange:-1.1,perCapita:0.63,perCapitaChangePercent:3.5,brandCount:8},{category:"Gaming consoles",ics:106.2,icsChange:1.4,perCapita:0.92,perCapitaChangePercent:2.1,brandCount:3},{category:"Casual Dining",ics:100.7,icsChange:-1.9,perCapita:0.24,perCapitaChangePercent:1.1,brandCount:10},{category:"Airlines",ics:116.7,icsChange:-1.5,perCapita:0.05,perCapitaChangePercent:1.1,brandCount:10},{category:"QSR",ics:100.3,icsChange:-0.4,perCapita:1.71,perCapitaChangePercent:0.5,brandCount:15},{category:"Spirits",ics:112.1,icsChange:-1.9,perCapita:2.13,perCapitaChangePercent:0.3,brandCount:23},{category:"Payments",ics:107.1,icsChange:-2.2,perCapita:0.21,perCapitaChangePercent:0.3,brandCount:7},{category:"Real Estate",ics:114.3,icsChange:-0.9,perCapita:0.05,perCapitaChangePercent:-0.1,brandCount:6},{category:"Energy drinks",ics:112.3,icsChange:-1.4,perCapita:0.48,perCapitaChangePercent:-0.2,brandCount:5},{category:"Pharmacy",ics:111.4,icsChange:-0.4,perCapita:0.24,perCapitaChangePercent:-0.2,brandCount:5},{category:"Breakfast restaurants",ics:110.1,icsChange:-0.8,perCapita:0.06,perCapitaChangePercent:-0.4,brandCount:11},{category:"Credit card networks",ics:110.2,icsChange:1.5,perCapita:3.97,perCapitaChangePercent:-0.7,brandCount:4},{category:"Baby products",ics:116.6,icsChange:-1.7,perCapita:0.87,perCapitaChangePercent:-0.9,brandCount:8},{category:"Social media",ics:102.6,icsChange:0.1,perCapita:6.84,perCapitaChangePercent:-0.9,brandCount:7},{category:"Automotive",ics:122,icsChange:-0.8,perCapita:20.79,perCapitaChangePercent:-1.1,brandCount:28},{category:"Fitness",ics:128.6,icsChange:-0.8,perCapita:0.32,perCapitaChangePercent:-1.3,brandCount:9},{category:"Bottled water",ics:100.3,icsChange:-3,perCapita:2.87,perCapitaChangePercent:-1.6,brandCount:9},{category:"Grocery Retailers",ics:106.2,icsChange:-0.9,perCapita:1.09,perCapitaChangePercent:-1.8,brandCount:13},{category:"Food/Bev Delivery",ics:105.3,icsChange:-3.3,perCapita:0.36,perCapitaChangePercent:-1.8,brandCount:4},{category:"Luxury hotels",ics:123.9,icsChange:0.3,perCapita:0,perCapitaChangePercent:-2.1,brandCount:8},{category:"Department Stores",ics:110.1,icsChange:0.9,perCapita:0.07,perCapitaChangePercent:-2.2,brandCount:7},{category:"Ridesharing",ics:105.1,icsChange:-0.1,perCapita:0.22,perCapitaChangePercent:-2.9,brandCount:2}];
+    
+    let mainChart, scatterChart, timeseriesChart;
+    let currentMetric = 'perCapitaChangePercent';
+    let currentSort = 'perCapitaChangePercent';
+    let currentIndustry = 'Casual Dining';
+    
+    const metricLabels = {
+        perCapitaChangePercent: '% Change Per Capita',
+        icsChange: 'ICS Change (pts)',
+        ics: 'ICS Score'
+    };
+    
+    function getColor(value, metric) {
+        if (metric === 'perCapitaChangePercent' || metric === 'icsChange') {
+            if (value > 2) return '#10b981';
+            if (value > 0) return '#6ee7b7';
+            if (value > -1) return '#fbbf24';
+            if (value > -2) return '#fb923c';
+            return '#ef4444';
         }
-
-        function updateMainChart() {
-            const sortedData = [...rawData].sort((a, b) => b[currentSort] - a[currentSort]);
-            
-            const ctx = document.getElementById('mainChart').getContext('2d');
-            
-            if (mainChart) {
-                mainChart.destroy();
-            }
-
-            mainChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: sortedData.map(d => d.category),
-                    datasets: [{
-                        label: metricLabels[currentMetric],
-                        data: sortedData.map(d => d[currentMetric]),
-                        backgroundColor: sortedData.map(d => getColor(d[currentMetric], currentMetric)),
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const data = sortedData[context.dataIndex];
-                                    return [
-                                        `ICS: ${data.ics} (${data.icsChange > 0 ? '+' : ''}${data.icsChange} pts)`,
-                                        `Per Capita Change: ${data.perCapitaChangePercent}%`,
-                                        `Brands: ${data.brandCount}`
-                                    ];
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            grid: {
-                                drawBorder: false
-                            }
-                        },
-                        y: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                font: {
-                                    size: 10
-                                }
+        return '#3b82f6';
+    }
+    
+    function updateMainChart() {
+        const sortedData = [...rawData].sort((a, b) => b[currentSort] - a[currentSort]);
+        const ctx = document.getElementById('mainChart');
+        if (!ctx) return;
+        if (mainChart) mainChart.destroy();
+        
+        mainChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sortedData.map(d => d.category),
+                datasets: [{
+                    data: sortedData.map(d => d[currentMetric]),
+                    backgroundColor: sortedData.map(d => getColor(d[currentMetric], currentMetric)),
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const d = sortedData[context.dataIndex];
+                                return [
+                                    `ICS: ${d.ics} (${d.icsChange > 0 ? '+' : ''}${d.icsChange} pts)`,
+                                    `Per Capita Change: ${d.perCapitaChangePercent}%`,
+                                    `Brands: ${d.brandCount}`
+                                ];
                             }
                         }
                     }
-                }
-            });
-
-            document.getElementById('chartTitle').textContent = `${metricLabels[currentMetric]} by Industry Sector`;
-        }
-
-        function updateScatterChart() {
-            const ctx = document.getElementById('scatterChart').getContext('2d');
-            
-            if (scatterChart) {
-                scatterChart.destroy();
-            }
-
-            scatterChart = new Chart(ctx, {
-                type: 'scatter',
-                data: {
-                    datasets: [{
-                        label: 'Industries',
-                        data: rawData.map(d => ({
-                            x: d.ics,
-                            y: d.perCapitaChangePercent,
-                            category: d.category,
-                            icsChange: d.icsChange
-                        })),
-                        backgroundColor: rawData.map(d => getColor(d.perCapitaChangePercent, 'perCapitaChangePercent')),
-                        pointRadius: 6,
-                        pointHoverRadius: 8
-                    }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const point = context.raw;
-                                    return [
-                                        point.category,
-                                        `ICS: ${point.x}`,
-                                        `Per Capita: ${point.y}%`,
-                                        `ICS Change: ${point.icsChange > 0 ? '+' : ''}${point.icsChange} pts`
-                                    ];
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'ICS Score'
-                            },
-                            min: 95,
-                            max: 135
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Per Capita Change (%)'
-                            },
-                            grid: {
-                                drawBorder: false
+                scales: {
+                    x: { beginAtZero: true, grid: { drawBorder: false } },
+                    y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                }
+            }
+        });
+        document.getElementById('chartTitle').textContent = metricLabels[currentMetric] + ' by Industry Sector';
+    }
+    
+    function updateScatterChart() {
+        const ctx = document.getElementById('scatterChart');
+        if (!ctx) return;
+        if (scatterChart) scatterChart.destroy();
+        
+        scatterChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    data: rawData.map(d => ({
+                        x: d.ics,
+                        y: d.perCapitaChangePercent,
+                        category: d.category,
+                        icsChange: d.icsChange
+                    })),
+                    backgroundColor: rawData.map(d => getColor(d.perCapitaChangePercent, 'perCapitaChangePercent')),
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const p = context.raw;
+                                return [p.category, `ICS: ${p.x}`, `Per Capita: ${p.y}%`, `ICS Change: ${p.icsChange > 0 ? '+' : ''}${p.icsChange} pts`];
                             }
                         }
                     }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'ICS Score' }, min: 95, max: 135 },
+                    y: { title: { display: true, text: 'Per Capita Change (%)' }, grid: { drawBorder: false } }
                 }
-            });
-        }
-
-        function updateTimeseriesChart() {
-            const ctx = document.getElementById('timeseriesChart').getContext('2d');
-            
-            if (timeseriesChart) {
-                timeseriesChart.destroy();
             }
-
-            // Get data for selected industry
-            const industryData = timeseriesRawData[currentIndustry] || [];
-            
-            timeseriesChart =
+        });
+    }
+    
+    function updateTimeseriesChart() {
+        const ctx = document.getElementById('timeseriesChart');
+        if (!ctx) return;
+        if (timeseriesChart) timeseriesChart.destroy();
+        
+        const industryData = timeseriesRawData[currentIndustry] || [];
+        if (industryData.length === 0) return;
+        
+        timeseriesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: industryData.map(p => p.date),
+                datasets: [{
+                    label: 'Per Capita Consumption (3w rolling avg)',
+                    data: industryData.map(p => p.value * 100),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0,
+                    pointHoverRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Per Capita: ' + context.parsed.y.toFixed(2) + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } } },
+                    y: { beginAtZero: false, ticks: { callback: function(value) { return value.toFixed(1) + '%'; } } }
+                }
+            }
+        });
+    }
+    
+    function updateStats() {
+        const avgPerCapitaChange = rawData.reduce((sum, d) => sum + d.perCapitaChangePercent, 0) / rawData.length;
+        const avgICS = rawData.reduce((sum, d) => sum + d.ics, 0) / rawData.length;
+        const positiveCount = rawData.filter(d => d.perCapitaChangePercent > 0).length;
+        const negativeCount = rawData.filter(d => d.perCapitaChangePercent < 0).length;
+        
+        document.getElementById('avgChange').textContent = avgPerCapitaChange.toFixed(2) + '%';
+        document.getElementById('avgICS').textContent = avgICS.toFixed(1);
+        document.getElementById('growingCount').textContent = positiveCount;
+        document.getElementById('decliningCount').textContent = negativeCount;
+    }
+    
+    document.getElementById('metricSelect').addEventListener('change', (e) => {
+        currentMetric = e.target.value;
+        updateMainChart();
+    });
+    
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+        currentSort = e.target.value;
+        updateMainChart();
+    });
+    
+    document.getElementById('industrySelect').addEventListener('change', (e) => {
+        currentIndustry = e.target.value;
+        updateTimeseriesChart();
+    });
+    
+    updateStats();
+    updateMainChart();
+    updateScatterChart();
+    updateTimeseriesChart();
+});
+    </script>
+</body>
+</html>
