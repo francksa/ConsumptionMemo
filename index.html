@@ -443,13 +443,13 @@
                     labels: industryData.map(d => d.date),
                     datasets: [{
                         label: 'Per Capita Consumption (3w rolling avg)',
-                        data: industryData.map(d => d.value),
+                        data: industryData.map(d => d.value * 100), // Convert to percentage
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         borderWidth: 2,
                         tension: 0.4,
                         fill: true,
-                        pointRadius: 3,
+                        pointRadius: 0, // Remove dots
                         pointHoverRadius: 5
                     }]
                 },
@@ -464,17 +464,13 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return `Per Capita: ${context.parsed.y.toFixed(4)}`;
+                                    return `Per Capita: ${context.parsed.y.toFixed(2)}%`;
                                 }
                             }
                         }
                     },
                     scales: {
                         x: {
-                            title: {
-                                display: true,
-                                text: 'Week Ending'
-                            },
                             ticks: {
                                 maxRotation: 45,
                                 minRotation: 45,
@@ -484,11 +480,12 @@
                             }
                         },
                         y: {
-                            title: {
-                                display: true,
-                                text: 'Per Capita Consumption'
-                            },
-                            beginAtZero: false
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                }
+                            }
                         }
                     }
                 }
