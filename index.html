@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Industry Outlook Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen p-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-slate-800 mb-2">Industry Outlook Dashboard</h1>
+                <p class="text-slate-600">Week ending October 26, 2025 • 24 Industry Sectors</p>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div style="background-color: white; border-left: 4px solid #3b82f6;" class="rounded-lg shadow-sm p-4">
+                    <div class="text-xs text-slate-600 mb-1">Avg Per Capita Change</div>
+                    <div class="text-2xl font-bold text-slate-800" id="avgChange">0.40%</div>
+                    <div class="text-xs text-slate-500 mt-1">↑ from -0.9% last week</div>
+                </div>
+                
+                <div style="background-color: white; border-left: 4px solid #10b981;" class="rounded-lg shadow-sm p-4">
+                    <div class="text-xs text-slate-600 mb-1">Growing Sectors</div>
+                    <div class="text-2xl font-bold" style="color: #10b981;" id="growingCount">9</div>
+                    <div class="text-xs text-slate-500 mt-1">of 24 sectors</div>
+                </div>
+                
+                <div style="background-color: white; border-left: 4px solid #ef4444;" class="rounded-lg shadow-sm p-4">
+                    <div class="text-xs text-slate-600 mb-1">Declining Sectors</div>
+                    <div class="text-2xl font-bold" style="color: #ef4444;" id="decliningCount">15</div>
+                    <div class="text-xs text-slate-500 mt-1">of 24 sectors</div>
+                </div>
+                
+                <div style="background-color: white; border-left: 4px solid #a855f7;" class="rounded-lg shadow-sm p-4">
+                    <div class="text-xs text-slate-600 mb-1">Avg ICS</div>
+                    <div class="text-2xl font-bold text-slate-800" id="avgICS">112.5</div>
+                    <div class="text-xs text-slate-500 mt-1">Consumer sentiment index</div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div>
+                        <label class="text-sm font-medium text-slate-700 mr-2">Display Metric:</label>
+                        <select id="metricSelect" class="border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="perCapitaChangePercent">% Change Per Capita</option>
+                            <option value="icsChange">ICS Change (pts)</option>
+                            <option value="ics">ICS Score</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-slate-700 mr-2">Sort By:</label>
+                        <select id="sortSelect" class="border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="perCapitaChangePercent">Per Capita Change</option>
+                            <option value="icsChange">ICS Change</option>
+                            <option value="ics">ICS Score</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Chart -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4" id="chartTitle">% Change Per Capita by Industry Sector</h2>
+                <div style="height: 600px;">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Scatter Plot -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4">Weekly Sentiment vs. Weekly Consumption Performance</h2>
+                <p class="text-sm text-slate-600 mb-4">ICS (Consumer Sentiment) vs. Per Capita Change • Hover for details</p>
+                <div style="height: 500px;">
+                    <canvas id="scatterChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Time Series Chart -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4">Per Capita Consumption Trend Over Time</h2>
+                <div class="mb-4">
+                    <label class="text-sm font-medium text-slate-700 mr-2">Select Industry:</label>
+                    <select id="industrySelect" class="border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Crypto Apps">Crypto Apps</option>
+                        <option value="Streaming Apps">Streaming Apps</option>
+                        <option value="AI Platforms">AI Platforms</option>
+                        <option value="Gaming consoles">Gaming consoles</option>
+                        <option value="Casual Dining" selected>Casual Dining</option>
+                        <option value="Airlines">Airlines</option>
+                        <option value="QSR">QSR</option>
+                        <option value="Spirits">Spirits</option>
+                        <option value="Payments">Payments</option>
+                        <option value="Real Estate">Real Estate</option>
+                        <option value="Energy drinks">Energy drinks</option>
+                        <option value="Pharmacy">Pharmacy</option>
+                        <option value="Breakfast restaurants">Breakfast restaurants</option>
+                        <option value="Credit card networks">Credit card networks</option>
+                        <option value="Baby products">Baby products</option>
+                        <option value="Social media">Social media</option>
+                        <option value="Automotive">Automotive</option>
+                        <option value="Fitness">Fitness</option>
+                        <option value="Bottled water">Bottled water</option>
+                        <option value="Grocery Retailers">Grocery Retailers</option>
+                        <option value="Food/Bev Delivery">Food/Bev Delivery</option>
+                        <option value="Luxury hotels">Luxury hotels</option>
+                        <option value="Department Stores">Department Stores</option>
+                        <option value="Ridesharing">Ridesharing</option>
+                    </select>
+                </div>
+                <div style="height: 400px;">
+                    <canvas id="timeseriesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Key Insights -->
+            <div style="background: linear-gradient(to right, #eff6ff, #eef2ff);" class="rounded-lg shadow-md p-6 border border-blue-200">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4">Key Insights</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div style="background-color: white;" class="rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="text-xs font-medium" style="color: #15803d;">Top Performer</div>
+                        <div class="text-base font-bold text-slate-800">Crypto Apps</div>
+                        <div class="text-xs text-slate-600 mb-2">+14.6% per capita growth</div>
+                        <a href="https://blockchainreporter.net/crypto-market-october-2025-bitcoin-ethereum-lead-rally-as-major-coins-report-gains" target="_blank" rel="noopener noreferrer" class="text-xs hover:text-blue-800 underline flex items-center gap-1" style="color: #2563eb;">
+                            Recent news →
+                        </a>
+                    </div>
+                    
+                    <div style="background-color: white;" class="rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="text-xs font-medium" style="color: #b91c1c;">Biggest Decliner</div>
+                        <div class="text-base font-bold text-slate-800">Ridesharing</div>
+                        <div class="text-xs text-slate-600 mb-2">-2.9% per capita change</div>
+                        <a href="https://www.mckinsey.com/industries/consumer-packaged-goods/our-insights/how-todays-consumers-are-spending-their-time-and-money" target="_blank" rel="noopener noreferrer" class="text-xs hover:text-blue-800 underline flex items-center gap-1" style="color: #2563eb;">
+                            Consumer trends →
+                        </a>
+                    </div>
+                    
+                    <div style="background-color: white;" class="rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="text-xs font-medium" style="color: #1d4ed8;">Notable Divergence</div>
+                        <div class="text-base font-bold text-slate-800">Casual Dining</div>
+                        <div class="text-xs text-slate-600 mb-2">Growing +1.1% despite sentiment drop of -1.9 pts</div>
+                        <a href="https://blackboxintelligence.com/blog/restaurant-industry-in-review-trends-from-september-2025/" target="_blank" rel="noopener noreferrer" class="text-xs hover:text-blue-800 underline flex items-center gap-1" style="color: #2563eb;">
+                            Restaurant trends →
+                        </a>
+                    </div>
+                    
+                    <div style="background-color: white;" class="rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="text-xs font-medium" style="color: #7c3aed;">Watch List</div>
+                        <div class="text-base font-bold text-slate-800">Grocery & Delivery</div>
+                        <div class="text-xs text-slate-600 mb-2">Both declining -1.8% as dining out gains share</div>
+                        <a href="https://www.placer.ai/anchor/articles/q2-2025-restaurant-recap-a-cautious-consumer-shapes-dining-trends" target="_blank" rel="noopener noreferrer" class="text-xs hover:text-blue-800 underline flex items-center gap-1" style="color: #2563eb;">
+                            Industry analysis →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Category name mapping from file to display names
+        const categoryMapping = {
+            "Cryptotradingplatforms": "Crypto Apps",
+            "Video Streaming": "Streaming Apps",
+            "Artificialintelligence": "AI Platforms",
+            "Gamingconsoles": "Gaming consoles",
+            "Casual Dining": "Casual Dining",
+            "Airlines": "Airlines",
+            "QSR": "QSR",
+            "Spirits": "Spirits",
+            "Payments": "Payments",
+            "Real Estate": "Real Estate",
+            "Energydrinks": "Energy drinks",
+            "Pharmacy": "Pharmacy",
+            "Breakfastrestaurants": "Breakfast restaurants",
+            "Creditcardnetworks": "Credit card networks",
+            "Babyproducts": "Baby products",
+            "Socialmediaplatforms": "Social media",
+            "Automotive": "Automotive",
+            "Fitness": "Fitness",
+            "Bottledwaters": "Bottled water",
+            "Grocery Retailers": "Grocery Retailers",
+            "Food & Beverage Delivery": "Food/Bev Delivery",
+            "Luxuryhotels": "Luxury hotels",
+            "Department Stores": "Department Stores",
+            "Ridesharing": "Ridesharing"
+        };
+
+        // Reverse mapping
+        const reverseCategoryMapping = {};
+        Object.keys(categoryMapping).forEach(key => {
+            reverseCategoryMapping[categoryMapping[key]] = key;
+        });
+
+        // Time series data - Per capita consumption over 26 weeks (April-October 2025)
+        // Note: Replace with actual data from your Excel Timeseries sheet using the Python script
+        const timeseriesRawData = generatePlaceholderData();
+        
+        function generatePlaceholderData() {
+            const industries = [
+                "Crypto Apps", "Streaming Apps", "AI Platforms", "Gaming consoles",
+                "Casual Dining", "Airlines", "QSR", "Spirits", "Payments", "Real Estate",
+                "Energy drinks", "Pharmacy", "Breakfast restaurants", "Credit card networks",
+                "Baby products", "Social media", "Automotive", "Fitness", "Bottled water",
+                "Grocery Retailers", "Food/Bev Delivery", "Luxury hotels", "Department Stores",
+                "Ridesharing"
+            ];
+            
+            const startDate = new Date('2025-04-27');
+            const data = {};
+            
+            industries.forEach((industry, idx) => {
+                data[industry] = [];
+                const baseValue = 0.5 + (idx * 0.3); // Different base for each industry
+                const trend = (idx % 3 === 0) ? 0.002 : (idx % 3 === 1) ? -0.001 : 0.0005;
+                
+                for (let week = 0; week < 26; week++) {
+                    const date = new Date(startDate);
+                    date.setDate(date.getDate() + (week * 7));
+                    const dateStr = date.toISOString().split('T')[0];
+                    
+                    // Generate realistic variation
+                    const noise = (Math.random() - 0.5) * 0.01;
+                    const value = baseValue + (trend * week) + noise;
+                    
+                    data[industry].push({
+                        date: dateStr,
+                        value: parseFloat(value.toFixed(6))
+                    });
+                }
+            });
+            
+            return data;
+        }
+
+        // Industry data
+        const rawData = [
+            { category: "Crypto Apps", ics: 129.2, icsChange: 2.6, perCapita: 0.03, perCapitaChangePercent: 14.6, brandCount: 6 },
+            { category: "Streaming Apps", ics: 106.8, icsChange: 0.2, perCapita: 5.02, perCapitaChangePercent: 4.3, brandCount: 12 },
+            { category: "AI Platforms", ics: 117, icsChange: -1.1, perCapita: 0.63, perCapitaChangePercent: 3.5, brandCount: 8 },
+            { category: "Gaming consoles", ics: 106.2, icsChange: 1.4, perCapita: 0.92, perCapitaChangePercent: 2.1, brandCount: 3 },
+            { category: "Casual Dining", ics: 100.7, icsChange: -1.9, perCapita: 0.24, perCapitaChangePercent: 1.1, brandCount: 10 },
+            { category: "Airlines", ics: 116.7, icsChange: -1.5, perCapita: 0.05, perCapitaChangePercent: 1.1, brandCount: 10 },
+            { category: "QSR", ics: 100.3, icsChange: -0.4, perCapita: 1.71, perCapitaChangePercent: 0.5, brandCount: 15 },
+            { category: "Spirits", ics: 112.1, icsChange: -1.9, perCapita: 2.13, perCapitaChangePercent: 0.3, brandCount: 23 },
+            { category: "Payments", ics: 107.1, icsChange: -2.2, perCapita: 0.21, perCapitaChangePercent: 0.3, brandCount: 7 },
+            { category: "Real Estate", ics: 114.3, icsChange: -0.9, perCapita: 0.05, perCapitaChangePercent: -0.1, brandCount: 6 },
+            { category: "Energy drinks", ics: 112.3, icsChange: -1.4, perCapita: 0.48, perCapitaChangePercent: -0.2, brandCount: 5 },
+            { category: "Pharmacy", ics: 111.4, icsChange: -0.4, perCapita: 0.24, perCapitaChangePercent: -0.2, brandCount: 5 },
+            { category: "Breakfast restaurants", ics: 110.1, icsChange: -0.8, perCapita: 0.06, perCapitaChangePercent: -0.4, brandCount: 11 },
+            { category: "Credit card networks", ics: 110.2, icsChange: 1.5, perCapita: 3.97, perCapitaChangePercent: -0.7, brandCount: 4 },
+            { category: "Baby products", ics: 116.6, icsChange: -1.7, perCapita: 0.87, perCapitaChangePercent: -0.9, brandCount: 8 },
+            { category: "Social media", ics: 102.6, icsChange: 0.1, perCapita: 6.84, perCapitaChangePercent: -0.9, brandCount: 7 },
+            { category: "Automotive", ics: 122, icsChange: -0.8, perCapita: 20.79, perCapitaChangePercent: -1.1, brandCount: 28 },
+            { category: "Fitness", ics: 128.6, icsChange: -0.8, perCapita: 0.32, perCapitaChangePercent: -1.3, brandCount: 9 },
+            { category: "Bottled water", ics: 100.3, icsChange: -3, perCapita: 2.87, perCapitaChangePercent: -1.6, brandCount: 9 },
+            { category: "Grocery Retailers", ics: 106.2, icsChange: -0.9, perCapita: 1.09, perCapitaChangePercent: -1.8, brandCount: 13 },
+            { category: "Food/Bev Delivery", ics: 105.3, icsChange: -3.3, perCapita: 0.36, perCapitaChangePercent: -1.8, brandCount: 4 },
+            { category: "Luxury hotels", ics: 123.9, icsChange: 0.3, perCapita: 0, perCapitaChangePercent: -2.1, brandCount: 8 },
+            { category: "Department Stores", ics: 110.1, icsChange: 0.9, perCapita: 0.07, perCapitaChangePercent: -2.2, brandCount: 7 },
+            { category: "Ridesharing", ics: 105.1, icsChange: -0.1, perCapita: 0.22, perCapitaChangePercent: -2.9, brandCount: 2 }
+        ];
+
+        let mainChart, scatterChart, timeseriesChart;
+        let currentMetric = 'perCapitaChangePercent';
+        let currentSort = 'perCapitaChangePercent';
+        let currentIndustry = 'Casual Dining';
+
+        const metricLabels = {
+            perCapitaChangePercent: '% Change Per Capita',
+            icsChange: 'ICS Change (pts)',
+            ics: 'ICS Score'
+        };
+
+        function getColor(value, metric) {
+            if (metric === 'perCapitaChangePercent' || metric === 'icsChange') {
+                if (value > 2) return '#10b981';
+                if (value > 0) return '#6ee7b7';
+                if (value > -1) return '#fbbf24';
+                if (value > -2) return '#fb923c';
+                return '#ef4444';
+            }
+            return '#3b82f6';
+        }
+
+        function updateMainChart() {
+            const sortedData = [...rawData].sort((a, b) => b[currentSort] - a[currentSort]);
+            
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            
+            if (mainChart) {
+                mainChart.destroy();
+            }
+
+            mainChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedData.map(d => d.category),
+                    datasets: [{
+                        label: metricLabels[currentMetric],
+                        data: sortedData.map(d => d[currentMetric]),
+                        backgroundColor: sortedData.map(d => getColor(d[currentMetric], currentMetric)),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const data = sortedData[context.dataIndex];
+                                    return [
+                                        `ICS: ${data.ics} (${data.icsChange > 0 ? '+' : ''}${data.icsChange} pts)`,
+                                        `Per Capita Change: ${data.perCapitaChangePercent}%`,
+                                        `Brands: ${data.brandCount}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('chartTitle').textContent = `${metricLabels[currentMetric]} by Industry Sector`;
+        }
+
+        function updateScatterChart() {
+            const ctx = document.getElementById('scatterChart').getContext('2d');
+            
+            if (scatterChart) {
+                scatterChart.destroy();
+            }
+
+            scatterChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Industries',
+                        data: rawData.map(d => ({
+                            x: d.ics,
+                            y: d.perCapitaChangePercent,
+                            category: d.category,
+                            icsChange: d.icsChange
+                        })),
+                        backgroundColor: rawData.map(d => getColor(d.perCapitaChangePercent, 'perCapitaChangePercent')),
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const point = context.raw;
+                                    return [
+                                        point.category,
+                                        `ICS: ${point.x}`,
+                                        `Per Capita: ${point.y}%`,
+                                        `ICS Change: ${point.icsChange > 0 ? '+' : ''}${point.icsChange} pts`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'ICS Score'
+                            },
+                            min: 95,
+                            max: 135
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Per Capita Change (%)'
+                            },
+                            grid: {
+                                drawBorder: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTimeseriesChart() {
+            const ctx = document.getElementById('timeseriesChart').getContext('2d');
+            
+            if (timeseriesChart) {
+                timeseriesChart.destroy();
+            }
+
+            // Get data for selected industry
+            const industryData = timeseriesRawData[currentIndustry] || [];
+            
+            timeseriesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: industryData.map(d => d.date),
+                    datasets: [{
+                        label: 'Per Capita Consumption (3w rolling avg)',
+                        data: industryData.map(d => d.value),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Per Capita: ${context.parsed.y.toFixed(4)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Week Ending'
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Per Capita Consumption'
+                            },
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Calculate and update summary stats
+        function updateStats() {
+            const avgPerCapitaChange = rawData.reduce((sum, d) => sum + d.perCapitaChangePercent, 0) / rawData.length;
+            const avgICS = rawData.reduce((sum, d) => sum + d.ics, 0) / rawData.length;
+            const positiveCount = rawData.filter(d => d.perCapitaChangePercent > 0).length;
+            const negativeCount = rawData.filter(d => d.perCapitaChangePercent < 0).length;
+
+            document.getElementById('avgChange').textContent = avgPerCapitaChange.toFixed(2) + '%';
+            document.getElementById('avgICS').textContent = avgICS.toFixed(1);
+            document.getElementById('growingCount').textContent = positiveCount;
+            document.getElementById('decliningCount').textContent = negativeCount;
+        }
+
+        // Event listeners
+        document.getElementById('metricSelect').addEventListener('change', (e) => {
+            currentMetric = e.target.value;
+            updateMainChart();
+        });
+
+        document.getElementById('sortSelect').addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            updateMainChart();
+        });
+
+        document.getElementById('industrySelect').addEventListener('change', (e) => {
+            currentIndustry = e.target.value;
+            updateTimeseriesChart();
+        });
+
+        // Initialize
+        updateStats();
+        updateMainChart();
+        updateScatterChart();
+        updateTimeseriesChart();
+    </script>
+</body>
+</html>
