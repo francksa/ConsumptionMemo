@@ -1,0 +1,770 @@
+import React, { useState } from 'react';
+import { Upload, Download, FileSpreadsheet, AlertCircle } from 'lucide-react';
+import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
+
+const IndustryOutlookCalculator = () => {
+  const [files, setFiles] = useState([]);
+  const [processing, setProcessing] = useState(false);
+  const [results, setResults] = useState(null);
+  const [error, setError] = useState(null);
+  const [summary, setSummary] = useState('');
+
+  // Configuration matching your Python script
+  const PROFILES = {
+    daily: { "Several times a day": 14, "About once a day": 7, "A few times a week": 3, "About once a week": 1, "About once a month or less often": 0.25, "I do not have an account or do not use": 0.0 },
+    often: { "Several times a day": 7, "About once a day": 5, "A few times a week": 2, "About once a week": 1, "About once a month or less often": 0.25, "I do not have an account or do not use": 0.0 },
+    weekly: { "Several times a day": 3, "About once a day": 2, "A few times a week": 1, "About once a week": 0.5, "About once a month or less often": 0.25, "I do not have an account or do not use": 0.0 },
+    dining_weekly_low: { "Several times a day": 0.5, "About once a day": 0.5, "A few times a week": 1.5, "About once a week": 1.0, "About once a month or less often": 0.25, "I do not have an account or do not use": 0.0 },
+    streaming: { "Several times a day": 2, "About once a day": 1, "A few times a week": 4, "About once a week": 1, "About once a month or less often": 0.25, "I do not have an account or do not use": 0.0 },
+    grocery: { "Several times a day": 3, "About once a day": 2, "A few times a week": 3, "About once a week": 1.0, "About once a month or less often": 0.25, "I do not have an account or do not use": 0.0 },
+    pharmacy: { "Several times a day": 0.5, "About once a day": 0.5, "A few times a week": 0.3, "About once a week": 0.4, "About once a month or less often": 0.1, "I do not have an account or do not use": 0.0 },
+    dept_store: { "Several times a day": 0.3, "About once a day": 0.3, "A few times a week": 0.2, "About once a week": 0.1, "About once a month or less often": 0.6, "I do not have an account or do not use": 0.0 },
+    airlines: { "Several times a day": 0.02, "About once a day": 0.02, "A few times a week": 0.05, "About once a week": 0.10, "About once a month or less often": 0.05, "I do not have an account or do not use": 0.0 },
+    rideshare: { "Several times a day": 10, "About once a day": 7, "A few times a week": 5, "About once a week": 4, "About once a month or less often": 3, "I do not have an account or do not use": 0.0 },
+    auto: { "Several times a day": 28, "About once a day": 7, "A few times a week": 5, "About once a week": 1, "About once a month or less often": 0.25, "I do not have an account or do not use": 0.0 },
+    spirits: { "Several times a day": 8, "About once a day": 6, "A few times a week": 3, "About once a week": 2, "About once a month or less often": 1, "I do not have an account or do not use": 0.0 },
+    gaming: { "Several times a day": 7, "About once a day": 7, "A few times a week": 3, "About once a week": 1, "About once a month or less often": 0.25, "I do not have an account or do not use": 0.0 },
+    transactions: { "Several times a day": 30, "About once a day": 20, "A few times a week": 8, "About once a week": 2, "About once a month or less often": 0.5, "I do not have an account or do not use": 0.0 },
+    crypto: { "Several times a day": 0.05, "About once a day": 0.05, "A few times a week": 1, "About once a week": 1, "About once a month or less often": 0.05, "I do not have an account or do not use": 0.0 },
+    lux_hotels: { "Several times a day": 0.001, "About once a day": 0.001, "A few times a week": 0.001, "About once a week": 0.01, "About once a month or less often": 0.1, "I do not have an account or do not use": 0.0 },
+    real_estate: { "Several times a day": 0.01, "About once a day": 0.02, "A few times a week": 0.03, "About once a week": 0.04, "About once a month or less often": 0.02, "I do not have an account or do not use": 0.0 },
+    baby: { "Several times a day": 14, "About once a day": 5, "A few times a week": 3, "About once a week": 1.0, "About once a month or less often": 0.25, "I do not have an account or do not use": 0.0 },
+    breakfast: { "Several times a day": 0.05, "About once a day": 0.05, "A few times a week": 0.3, "About once a week": 0.3, "About once a month or less often": 0.25, "I do not have an account or do not use": 0.0 },
+    social: { "Several times a day": 25, "About once a day": 12, "A few times a week": 8, "About once a week": 5, "About once a month or less often": 1, "I do not have an account or do not use": 0.0 },
+    AI: { "Several times a day": 8, "About once a day": 2, "A few times a week": 3, "About once a week": 0.05, "About once a month or less often": 0.25, "I do not have an account or do not use": 0.0 }
+  };
+
+  const CATEGORY_PROFILE = {
+    "Bottledwaters": "often", "Socialmediaplatforms": "social", "Artificialintelligence": "AI",
+    "ArtificialIntelligence": "AI",
+    "Gamingconsoles": "gaming", "Fitness": "weekly", "Energydrinks": "weekly", "Yogurts": "often",
+    "QSR": "daily", "Food_BevDelivery": "weekly", "RideSharing": "rideshare",
+    "CasualDining": "dining_weekly_low", "Breakfastrestaurants": "breakfast",
+    "Retailers": "grocery", "DepartmentStores": "dept_store", "Pharmacy": "weekly",
+    "Airlines": "airlines", "Luxuryhotels": "lux_hotels", "RealEstate": "real_estate",
+    "Payment": "transactions", "Creditcardnetworks": "transactions", "Cryptotradingplatforms": "crypto",
+    "Videostreaming": "daily", "Automotive": "auto", "Spirits": "spirits", "Babyproducts": "baby"
+  };
+
+  const CATEGORY_TARGETS = {
+    "Automotive": 21.0, "Retailers": 1.1, "DepartmentStores": 0.07, "RideSharing": 0.22,
+    "Airlines": 0.05, "Payment": 0.22, "Videostreaming": 5.0, "RealEstate": 0.05,
+    "Breakfastrestaurants": 0.06, "Creditcardnetworks": 3.9, "Energydrinks": 0.50,
+    "Fitness": 0.33, "Spirits": 2.2, "Gamingconsoles": 1.0, "Cryptotradingplatforms": 0.03,
+    "Babyproducts": 0.9, "Artificialintelligence": 0.60, "Socialmediaplatforms": 7.0,
+    "Luxuryhotels": 0.001, "QSR": 1.7, "Bottledwaters": 3.0, "CasualDining": 0.23,
+    "Food_BevDelivery": 0.34, "Pharmacy": 0.25,
+    // Add case variations
+    "ArtificialIntelligence": 0.60, "Gamingconsoles": 1.0
+  };
+
+  const FRIENDLY_NAMES = {
+    "Food_BevDelivery": "Food & Bev Delivery", "Retailers": "Grocery Retailers",
+    "RideSharing": "Ridesharing", "Payment": "Payments", "Videostreaming": "Streaming Apps",
+    "RealEstate": "Real Estate", "Automotive": "Automotive", "Airlines": "Airlines",
+    "CasualDining": "Casual Dining", "DepartmentStores": "Department Stores",
+    "Pharmacy": "Pharmacy", "QSR": "QSR", "Bottledwaters": "Bottled Water",
+    "Socialmediaplatforms": "Social Media Apps", "Artificialintelligence": "AI Platforms",
+    "ArtificialIntelligence": "AI Platforms",
+    "Gamingconsoles": "Gaming Consoles", "Fitness": "Fitness", "Energydrinks": "Energy Drinks",
+    "Breakfastrestaurants": "Breakfast Restaurants", "Creditcardnetworks": "Credit Card Networks",
+    "Cryptotradingplatforms": "Crypto Apps", "Luxuryhotels": "Luxury Hotels",
+    "Spirits": "Spirits", "Babyproducts": "Baby Products"
+  };
+
+  const handleFileUpload = (event) => {
+    const uploadedFiles = Array.from(event.target.files);
+    setFiles(uploadedFiles);
+    setError(null);
+  };
+
+  const toProp = (v) => {
+    if (v === null || v === undefined || v === '') return null;
+    
+    if (typeof v === 'string') {
+      v = v.trim();
+      if (v === '' || v.toLowerCase() === 'nan' || v.toLowerCase() === 'null') return null;
+      if (v.endsWith('%')) {
+        const num = parseFloat(v.slice(0, -1));
+        return isNaN(num) ? null : num / 100;
+      }
+    }
+    const f = parseFloat(v);
+    if (isNaN(f)) return null;
+    if (f > 1.0 && f <= 100.0) return f / 100.0;
+    return f;
+  };
+
+  const rollingMean = (arr, window) => {
+    const result = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (i < window - 1) {
+        result.push(null);
+      } else {
+        const slice = arr.slice(i - window + 1, i + 1);
+        const validSlice = slice.filter(x => x !== null && !isNaN(x));
+        // Only calculate if we have exactly 'window' valid values (matching Python's min_periods=3)
+        if (validSlice.length === window) {
+          result.push(validSlice.reduce((a, b) => a + b, 0) / window);
+        } else {
+          result.push(null);
+        }
+      }
+    }
+    return result;
+  };
+
+  const processFiles = async () => {
+    if (files.length === 0) {
+      setError('Please upload at least one CSV file');
+      return;
+    }
+
+    setProcessing(true);
+    setError(null);
+
+    try {
+      const allResults = [];
+      const allTimeseries = [];
+      let latestDate = null;
+
+      for (const file of files) {
+        const fileName = file.name.replace(/\s*\(\d+\)\.csv$/i, '').replace('.csv', '');
+        
+        console.log(`\n>>> Processing file: ${file.name} -> fileName: ${fileName}`);
+        
+        const text = await file.text();
+        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+        const df = parsed.data;
+
+        // Find latest date
+        if (df.length > 0 && df[0].period_end && !latestDate) {
+          latestDate = df[df.length - 1].period_end;
+        }
+
+        // Compute ICS
+        const icsResult = computeICS(df);
+        
+        // Compute per-capita
+        const perCapitaResult = computePerCapita(df, fileName);
+        
+        console.log(`${fileName} - Per Capita Avg: ${perCapitaResult.perCapitaAvg}, % Change: ${perCapitaResult.pctChange}`);
+
+        allResults.push({
+          Category: FRIENDLY_NAMES[fileName] || fileName,
+          'ICS (3w avg)': icsResult.icsAvg,
+          'ICS Δ (pts)': icsResult.icsDelta,
+          'Per Capita (3w avg, scaled)': perCapitaResult.perCapitaAvg,
+          '% Δ Per Capita (3w vs prior 3w)': perCapitaResult.pctChange,
+          'Brands with ICS Data': icsResult.brandsCount
+        });
+
+        allTimeseries.push(...perCapitaResult.timeseries.map(row => ({
+          ...row,
+          category: FRIENDLY_NAMES[fileName] || fileName
+        })));
+      }
+
+      // Sort by % change descending
+      allResults.sort((a, b) => {
+        const aVal = a['% Δ Per Capita (3w vs prior 3w)'];
+        const bVal = b['% Δ Per Capita (3w vs prior 3w)'];
+        if (aVal === null || aVal === undefined || isNaN(aVal)) return 1;
+        if (bVal === null || bVal === undefined || isNaN(bVal)) return -1;
+        return bVal - aVal;
+      });
+
+      setResults({ summary: allResults, timeseries: allTimeseries, latestDate });
+      
+      // Generate summary insights
+      generateSummary(allResults);
+    } catch (err) {
+      setError(`Error processing files: ${err.message}`);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const computeICS = (df) => {
+    const icsRows = df.filter(row => 
+      row.question === 'Index of Consumer Sentiment (ICS)' &&
+      row.audience && row.audience.toLowerCase().includes('users')
+    );
+
+    if (icsRows.length === 0) {
+      return { icsAvg: null, icsDelta: null, brandsCount: 0 };
+    }
+
+    // Group by period_end and brand
+    const grouped = {};
+    icsRows.forEach(row => {
+      const key = `${row.period_end}|${row.audience}`;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(parseFloat(row.value));
+    });
+
+    // Average per brand per week
+    const weeklyData = {};
+    Object.entries(grouped).forEach(([key, values]) => {
+      const [week, audience] = key.split('|');
+      if (!weeklyData[week]) weeklyData[week] = [];
+      const avg = values.reduce((a, b) => a + b, 0) / values.length;
+      weeklyData[week].push(avg);
+    });
+
+    // Average across brands per week
+    const weeks = Object.keys(weeklyData).sort();
+    const weeklyAvgs = weeks.map(week => ({
+      week,
+      ics: weeklyData[week].reduce((a, b) => a + b, 0) / weeklyData[week].length,
+      brandsCount: weeklyData[week].length
+    }));
+
+    // 3-week rolling
+    const icsValues = weeklyAvgs.map(w => w.ics);
+    const rolled = rollingMean(icsValues, 3);
+    
+    const validRolled = rolled.filter(x => x !== null);
+    if (validRolled.length === 0) {
+      return { icsAvg: null, icsDelta: null, brandsCount: 0 };
+    }
+
+    const latest = validRolled[validRolled.length - 1];
+    const prev = validRolled.length > 1 ? validRolled[validRolled.length - 2] : null;
+    const delta = prev !== null ? latest - prev : null;
+
+    return {
+      icsAvg: Math.round(latest * 10) / 10,
+      icsDelta: delta !== null ? Math.round(delta * 10) / 10 : null,
+      brandsCount: weeklyAvgs[weeklyAvgs.length - 1]?.brandsCount || 0
+    };
+  };
+
+  const generateSummary = (data) => {
+    const validData = data.filter(d => 
+      d['% Δ Per Capita (3w vs prior 3w)'] !== null && 
+      !isNaN(d['% Δ Per Capita (3w vs prior 3w)'])
+    );
+    
+    // Calculate average change
+    const avgChange = validData.reduce((sum, d) => 
+      sum + d['% Δ Per Capita (3w vs prior 3w)'], 0
+    ) / validData.length;
+    
+    // Top gainers and decliners
+    const topGainers = validData
+      .filter(d => d['% Δ Per Capita (3w vs prior 3w)'] > 0)
+      .sort((a, b) => b['% Δ Per Capita (3w vs prior 3w)'] - a['% Δ Per Capita (3w vs prior 3w)'])
+      .slice(0, 3);
+    
+    const topDecliners = validData
+      .filter(d => d['% Δ Per Capita (3w vs prior 3w)'] < 0)
+      .sort((a, b) => a['% Δ Per Capita (3w vs prior 3w)'] - b['% Δ Per Capita (3w vs prior 3w)'])
+      .slice(0, 3);
+    
+    // Generate summary text
+    let summaryText = `Last week's average per-capita consumption ${avgChange >= 0 ? 'rose' : 'fell'} ${Math.abs(avgChange).toFixed(1)}%.\n\n`;
+    
+    if (topGainers.length > 0) {
+      summaryText += `**Top Gainers:**\n`;
+      topGainers.forEach(d => {
+        summaryText += `• ${d.Category}: +${d['% Δ Per Capita (3w vs prior 3w)'].toFixed(1)}%\n`;
+      });
+      summaryText += '\n';
+    }
+    
+    if (topDecliners.length > 0) {
+      summaryText += `**Top Decliners:**\n`;
+      topDecliners.forEach(d => {
+        summaryText += `• ${d.Category}: ${d['% Δ Per Capita (3w vs prior 3w)'].toFixed(1)}%\n`;
+      });
+    }
+    
+    setSummary(summaryText);
+  };
+
+  const copyToClipboard = async () => {
+    if (!results) return;
+    
+    const weekEnding = results.latestDate || 'unknown';
+    const formattedDate = new Date(weekEnding).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
+    
+    // Create HTML with proper table structure that Google Docs recognizes
+    let html = `<!DOCTYPE html><html><head><style>
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid black; padding: 8px; text-align: center; }
+      .header-row { background-color: #000000; color: white; font-weight: bold; }
+      .column-headers { background-color: #f0f0f0; font-weight: bold; }
+      .left-align { text-align: left; }
+    </style></head><body>`;
+    
+    html += `<p><strong>U.S. Consumer Sectors Outlook (week ending ${formattedDate})</strong></p>`;
+    html += `<p>${summary.replace(/\*\*/g, '<strong>').replace(/\n/g, '<br>')}</p>`;
+    
+    html += `<table>`;
+    html += `<tr class="header-row">`;
+    html += `<td colspan="4">U.S. CONSUMER INDUSTRIES OUTLOOK (<a href="https://pro.morningconsult.com/articles/signals-of-market-momentum-understanding-consumer-sentiment-and-behaviors" style="color: #4a9eff;">Methodology</a>)</td>`;
+    html += `</tr>`;
+    html += `<tr class="column-headers">`;
+    html += `<td class="left-align">Consumer Industry</td>`;
+    html += `<td>Sentiment of Users</td>`;
+    html += `<td>WoW Change Sentiment (pts)</td>`;
+    html += `<td>WoW Change Consumption (%)</td>`;
+    html += `</tr>`;
+    
+    results.summary.forEach(row => {
+      const category = row.Category;
+      const ics = row['ICS (3w avg)'] !== null ? row['ICS (3w avg)'].toFixed(1) : '-';
+      const icsDelta = row['ICS Δ (pts)'] !== null ? row['ICS Δ (pts)'].toFixed(1) : '-';
+      const pctChange = row['% Δ Per Capita (3w vs prior 3w)'] !== null ? row['% Δ Per Capita (3w vs prior 3w)'].toFixed(1) : '-';
+      
+      html += `<tr>`;
+      html += `<td class="left-align">${category}</td>`;
+      html += `<td>${ics}</td>`;
+      html += `<td>${icsDelta}</td>`;
+      html += `<td>${pctChange}</td>`;
+      html += `</tr>`;
+    });
+    
+    html += `</table></body></html>`;
+    
+    try {
+      // Try HTML clipboard first (best for Google Docs)
+      const htmlBlob = new Blob([html], { type: 'text/html' });
+      const textBlob = new Blob([html], { type: 'text/plain' });
+      const clipboardItem = new ClipboardItem({
+        'text/html': htmlBlob,
+        'text/plain': textBlob
+      });
+      
+      await navigator.clipboard.write([clipboardItem]);
+      alert('Table copied! Paste into Google Docs (Ctrl+V or Cmd+V) and it will appear as a formatted table with the black header.');
+    } catch (err) {
+      console.error('Clipboard error:', err);
+      alert('Failed to copy. Please try again or use the Excel download instead.');
+    }
+  };
+
+  const computePerCapita = (df, fileName) => {
+    const profile = CATEGORY_PROFILE[fileName] || 'weekly';
+    const rateMap = PROFILES[profile];
+    
+    console.log(`\n=== Processing ${fileName} ===`);
+    console.log(`Profile lookup: CATEGORY_PROFILE["${fileName}"] = ${CATEGORY_PROFILE[fileName] || 'undefined (defaulting to weekly)'}`);
+    console.log(`Using profile: ${profile}`);
+    
+    // More flexible filtering - check for both exact match and contains
+    const usageRows = df.filter(row => {
+      const questionMatch = row.question && 
+        (row.question.includes('Usage Frequency Responses') || 
+         row.question.includes('Usage Frequencies'));
+      const audienceMatch = row.audience && 
+        row.audience.trim().toLowerCase() === 'all respondents';
+      const hasBrand = row.brand && row.brand.trim() !== '' && 
+        row.brand.trim().toLowerCase() !== 'nan' &&
+        row.brand.trim().toLowerCase() !== 'null';
+      
+      return questionMatch && audienceMatch && hasBrand;
+    });
+
+    console.log(`Found ${usageRows.length} usage rows`);
+    
+    // Debug: show unique brands
+    const uniqueBrands = [...new Set(usageRows.map(r => r.brand))];
+    console.log(`Unique brands: ${uniqueBrands.join(', ')}`);
+
+    if (usageRows.length === 0) {
+      console.log(`No usage rows found for ${fileName}`);
+      return { perCapitaAvg: null, pctChange: null, timeseries: [] };
+    }
+
+    // Group by week, brand, response
+    const grouped = {};
+    usageRows.forEach(row => {
+      const week = row.period_end ? row.period_end.trim() : '';
+      const brand = row.brand ? row.brand.trim() : '';
+      const response = row.question_response ? row.question_response.trim() : '';
+      
+      if (!week || !brand || !response) return;
+      
+      const key = `${week}|${brand}|${response}`;
+      if (!grouped[key]) grouped[key] = { props: [], weights: [], totalNs: [] };
+      const prop = toProp(row.value);
+      if (prop !== null) {
+        grouped[key].props.push(prop);
+        // Handle missing total_n column
+        const n = row.total_n ? parseFloat(row.total_n) : 1;
+        grouped[key].weights.push(isNaN(n) ? 1 : n);
+        grouped[key].totalNs.push(isNaN(n) ? 1 : n);
+      }
+    });
+
+    console.log(`Created ${Object.keys(grouped).length} grouped entries`);
+
+    if (Object.keys(grouped).length === 0) {
+      console.log(`No valid grouped data for ${fileName}`);
+      return { perCapitaAvg: null, pctChange: null, timeseries: [] };
+    }
+
+    // Calculate averages per week-brand-response 
+    // Python: af_agg = af.groupby(["week", "brand", "question_response"]).agg(prop_raw=("prop_raw", "mean"), total_n=("total_n", "sum"))
+    const weekBrandResponseAgg = {};
+    Object.entries(grouped).forEach(([key, data]) => {
+      const [week, brand, response] = key.split('|');
+      
+      // Mean of proportions, sum of total_n
+      const meanProp = data.props.reduce((a, b) => a + b, 0) / data.props.length;
+      const sumN = data.totalNs.reduce((a, b) => a + b, 0);
+      
+      const wbrKey = `${week}|${brand}|${response}`;
+      weekBrandResponseAgg[wbrKey] = { 
+        week,
+        brand,
+        response,
+        prop: meanProp,
+        totalN: sumN
+      };
+    });
+
+    console.log(`Created ${Object.keys(weekBrandResponseAgg).length} week-brand-response aggregations`);
+
+    // Group by week-brand for per-capita calculation
+    const weekBrandGroups = {};
+    Object.values(weekBrandResponseAgg).forEach(row => {
+      const wbKey = `${row.week}|${row.brand}`;
+      if (!weekBrandGroups[wbKey]) {
+        weekBrandGroups[wbKey] = { week: row.week, brand: row.brand, responses: [] };
+      }
+      weekBrandGroups[wbKey].responses.push({ response: row.response, prop: row.prop, totalN: row.totalN });
+    });
+
+    // Calculate weights separately (sum of total_n per week-brand)
+    const weekBrandWeights = {};
+    Object.values(weekBrandResponseAgg).forEach(row => {
+      const wbKey = `${row.week}|${row.brand}`;
+      if (!weekBrandWeights[wbKey]) {
+        weekBrandWeights[wbKey] = 0;
+      }
+      weekBrandWeights[wbKey] += row.totalN;
+    });
+
+    console.log(`Created ${Object.keys(weekBrandGroups).length} week-brand combinations`);
+
+    // Calculate per-capita for each week-brand
+    const weekBrandPerCapita = {};
+    Object.entries(weekBrandGroups).forEach(([key, data]) => {
+      // Calculate sum of props for normalization check (Python: sum_prop)
+      const sumProp = data.responses.reduce((sum, r) => sum + r.prop, 0);
+      const shouldNormalize = Math.abs(sumProp - 1.0) > 0.02;
+      
+      // Map responses to rates and calculate per-capita
+      let perCapita = 0;
+      let hasValidRate = false;
+      
+      data.responses.forEach(r => {
+        const rate = rateMap[r.response];
+        if (rate !== undefined) {
+          hasValidRate = true;
+          const normalizedProp = shouldNormalize ? r.prop / sumProp : r.prop;
+          perCapita += normalizedProp * rate;
+        }
+      });
+      
+      if (hasValidRate) {
+        // Use the sum of total_n for this brand-week as weight (matching Python)
+        weekBrandPerCapita[key] = {
+          week: data.week,
+          brand: data.brand,
+          perCapita,
+          weight: weekBrandWeights[key] || 1
+        };
+      }
+    });
+
+    console.log(`Created ${Object.keys(weekBrandPerCapita).length} per-capita entries`);
+
+    if (Object.keys(weekBrandPerCapita).length === 0) {
+      console.log(`No valid per-capita calculations for ${fileName}`);
+      return { perCapitaAvg: null, pctChange: null, timeseries: [] };
+    }
+
+    // Aggregate across brands per week (weighted average)
+    const weeklyData = {};
+    Object.entries(weekBrandPerCapita).forEach(([key, data]) => {
+      const week = data.week;
+      if (!weeklyData[week]) weeklyData[week] = { weighted: 0, totalWeight: 0, brands: [] };
+      weeklyData[week].weighted += data.perCapita * data.weight;
+      weeklyData[week].totalWeight += data.weight;
+      weeklyData[week].brands.push({ brand: data.brand, perCapita: data.perCapita, weight: data.weight });
+    });
+
+    // Sort weeks chronologically by parsing as dates
+    const weeks = Object.keys(weeklyData).sort((a, b) => {
+      const dateA = new Date(a);
+      const dateB = new Date(b);
+      return dateA - dateB;
+    });
+    console.log(`Aggregated to ${weeks.length} weeks`);
+    
+    // Debug: check for duplicate weeks
+    const uniqueWeeks = new Set(weeks);
+    if (uniqueWeeks.size !== weeks.length) {
+      console.warn(`Warning: Found ${weeks.length - uniqueWeeks.size} duplicate weeks!`);
+    }
+    
+    if (fileName.toLowerCase().includes('artificial')) {
+      // Show last 3 weeks in detail
+      const lastThreeWeeks = weeks.slice(-3);
+      lastThreeWeeks.forEach(week => {
+        const data = weeklyData[week];
+        console.log(`Week ${week}: ${data.brands.length} brands, weighted sum: ${data.weighted.toFixed(6)}, total weight: ${data.totalWeight.toFixed(2)}, avg: ${(data.weighted / data.totalWeight).toFixed(6)}`);
+        data.brands.forEach(b => {
+          console.log(`  - ${b.brand}: perCapita=${b.perCapita.toFixed(6)}, weight=${b.weight}`);
+        });
+      });
+    }
+    
+    const usesPerWeek = weeks.map(week => ({
+      week,
+      uses: weeklyData[week].totalWeight > 0 
+        ? weeklyData[week].weighted / weeklyData[week].totalWeight 
+        : null
+    }));
+    
+    // Debug output for AI
+    if (fileName.toLowerCase().includes('artificial')) {
+      console.log('Weeks array:', weeks.join(', '));
+      console.log('Weekly uses (week: value):', usesPerWeek.map(w => `${w.week}: ${w.uses ? w.uses.toFixed(6) : 'null'}`).join(', '));
+    }
+
+    // Scale
+    const target = CATEGORY_TARGETS[fileName];
+    console.log(`Looking up target for "${fileName}": ${target}`);
+    
+    let scaleFactor = 1;
+    
+    // Special case for bottled water - convert to liters/week
+    let baseValues = usesPerWeek.map(w => w.uses);
+    if (fileName.toLowerCase() === 'bottledwaters') {
+      baseValues = baseValues.map(v => v !== null ? v * 0.5 : null);
+    }
+    
+    if (target && baseValues.filter(v => v !== null).length > 0) {
+      const validUses = baseValues.filter(v => v !== null);
+      const targetWindow = 8;
+      if (validUses.length >= targetWindow) {
+        const refValues = validUses.slice(-targetWindow);
+        const sorted = [...refValues].sort((a, b) => a - b);
+        // Python uses median, which for even numbers takes the average of middle two
+        const mid = Math.floor(sorted.length / 2);
+        const refMedian = sorted.length % 2 === 0 
+          ? (sorted[mid - 1] + sorted[mid]) / 2 
+          : sorted[mid];
+        if (refMedian > 0) {
+          scaleFactor = target / refMedian;
+          console.log(`Scale factor: ${scaleFactor.toFixed(6)} (target: ${target}, median: ${refMedian.toFixed(6)})`);
+        }
+      } else if (validUses.length > 0) {
+        const sorted = [...validUses].sort((a, b) => a - b);
+        const mid = Math.floor(sorted.length / 2);
+        const refMedian = sorted.length % 2 === 0 
+          ? (sorted[mid - 1] + sorted[mid]) / 2 
+          : sorted[mid];
+        if (refMedian > 0) {
+          scaleFactor = target / refMedian;
+          console.log(`Scale factor (short): ${scaleFactor.toFixed(6)} (target: ${target}, median: ${refMedian.toFixed(6)})`);
+        }
+      }
+    }
+
+    const scaled = baseValues.map(v => v !== null ? v * scaleFactor : null);
+    
+    if (fileName.toLowerCase().includes('artificial')) {
+      console.log(`All scaled values (${scaled.length} total):`, scaled.map((v, i) => `[${i}]${v ? v.toFixed(6) : 'null'}`).join(', '));
+    }
+    
+    const rolled = rollingMean(scaled, 3);
+    
+    if (fileName.toLowerCase().includes('artificial')) {
+      console.log(`All rolled values (${rolled.length} total):`, rolled.map((v, i) => `[${i}]${v ? v.toFixed(6) : 'null'}`).join(', '));
+    }
+
+    const validRolled = rolled.filter(x => x !== null);
+    if (validRolled.length === 0) {
+      return { perCapitaAvg: null, pctChange: null, timeseries: [] };
+    }
+
+    // Get the last valid rolled value (matching Python's behavior)
+    let latest = validRolled[validRolled.length - 1];
+    let prev = validRolled.length > 1 ? validRolled[validRolled.length - 2] : null;
+    
+    // Check if the very last entry in rolled array is valid - if so, use it
+    const lastRolled = rolled[rolled.length - 1];
+    if (lastRolled !== null) {
+      latest = lastRolled;
+      // Find the previous non-null value
+      for (let i = rolled.length - 2; i >= 0; i--) {
+        if (rolled[i] !== null) {
+          prev = rolled[i];
+          break;
+        }
+      }
+    }
+    
+    const pctChange = prev !== null && prev !== 0 ? ((latest - prev) / prev * 100) : null;
+
+    console.log(`Latest 3w avg: ${latest.toFixed(4)}, Prev: ${prev ? prev.toFixed(4) : 'N/A'}, % change: ${pctChange ? pctChange.toFixed(2) : 'N/A'}%`);
+
+    const timeseries = weeks.map((week, i) => ({
+      Week: week,
+      metric: scaled[i],
+      metric_rolled: rolled[i]
+    }));
+
+    return {
+      perCapitaAvg: Math.round(latest * 100) / 100,
+      pctChange: pctChange !== null ? Math.round(pctChange * 10) / 10 : null,
+      timeseries
+    };
+  };
+
+  const downloadExcel = () => {
+    if (!results) return;
+
+    const wb = XLSX.utils.book_new();
+    
+    // Summary sheet
+    const summaryWs = XLSX.utils.json_to_sheet(results.summary);
+    XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+    
+    // Timeseries sheet
+    const timeseriesWs = XLSX.utils.json_to_sheet(results.timeseries);
+    XLSX.utils.book_append_sheet(wb, timeseriesWs, 'Timeseries');
+    
+    const fileName = `IndustryOutlook_${results.latestDate || 'unknown'}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+          <div className="flex items-center gap-3 mb-6">
+            <FileSpreadsheet className="w-8 h-8 text-indigo-600" />
+            <h1 className="text-3xl font-bold text-gray-800">Industry Outlook Calculator</h1>
+          </div>
+          
+          <div className="mb-6">
+            <label className="flex items-center justify-center w-full px-4 py-8 border-2 border-dashed border-indigo-300 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all">
+              <div className="text-center">
+                <Upload className="w-12 h-12 text-indigo-500 mx-auto mb-3" />
+                <span className="text-lg text-gray-700">
+                  Drop your 24 CSV files here or click to browse
+                </span>
+                <p className="text-sm text-gray-500 mt-2">
+                  {files.length > 0 ? `${files.length} files selected` : 'No files selected'}
+                </p>
+              </div>
+              <input
+                type="file"
+                multiple
+                accept=".csv"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="text-red-800">{error}</p>
+            </div>
+          )}
+
+          <button
+            onClick={processFiles}
+            disabled={processing || files.length === 0}
+            className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          >
+            {processing ? 'Processing...' : 'Calculate Metrics'}
+          </button>
+        </div>
+
+        {results && (
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">Results</h2>
+              <div className="flex gap-3">
+                <button
+                  onClick={copyToClipboard}
+                  className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                >
+                  <Download className="w-5 h-5" />
+                  Copy for Google Docs
+                </button>
+                <button
+                  onClick={downloadExcel}
+                  className="flex items-center gap-2 bg-green-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                >
+                  <Download className="w-5 h-5" />
+                  Download Excel
+                </button>
+              </div>
+            </div>
+
+            {summary && (
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="font-semibold text-gray-800 mb-2">Summary Insights</h3>
+                <div className="text-gray-700 whitespace-pre-line text-sm">{summary}</div>
+              </div>
+            )}
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-100 border-b-2 border-gray-300">
+                    <th className="text-left p-3 font-semibold">Category</th>
+                    <th className="text-right p-3 font-semibold">ICS (3w avg)</th>
+                    <th className="text-right p-3 font-semibold">ICS Δ (pts)</th>
+                    <th className="text-right p-3 font-semibold">Per Capita (3w avg)</th>
+                    <th className="text-right p-3 font-semibold">% Δ Per Capita</th>
+                    <th className="text-right p-3 font-semibold">Brands</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.summary.map((row, idx) => (
+                    <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="p-3">{row.Category}</td>
+                      <td className="text-right p-3">
+                        {row['ICS (3w avg)'] !== null ? row['ICS (3w avg)'].toFixed(1) : '-'}
+                      </td>
+                      <td className="text-right p-3">
+                        {row['ICS Δ (pts)'] !== null ? row['ICS Δ (pts)'].toFixed(1) : '-'}
+                      </td>
+                      <td className="text-right p-3">
+                        {row['Per Capita (3w avg, scaled)'] !== null ? row['Per Capita (3w avg, scaled)'].toFixed(2) : '-'}
+                      </td>
+                      <td className={`text-right p-3 font-semibold ${
+                        row['% Δ Per Capita (3w vs prior 3w)'] > 0 ? 'text-green-600' :
+                        row['% Δ Per Capita (3w vs prior 3w)'] < 0 ? 'text-red-600' : ''
+                      }`}>
+                        {row['% Δ Per Capita (3w vs prior 3w)'] !== null 
+                          ? `${row['% Δ Per Capita (3w vs prior 3w)'] > 0 ? '+' : ''}${row['% Δ Per Capita (3w vs prior 3w)'].toFixed(1)}%`
+                          : '-'}
+                      </td>
+                      <td className="text-right p-3">{row['Brands with ICS Data']}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default IndustryOutlookCalculator;
